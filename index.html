@@ -48,11 +48,12 @@
         <div id="login-container">
             <div id="login-info" class="login-column">
                 <!-- Đường dẫn logo (Bạn PHẢI đặt logo vào Content/logo/KQM.png) -->
-                <img id="ueh-logo" src="Content/logo/KQM.png" alt="Logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/0f0?text=Logo+Error'">
+                <img id="ueh-logo" src="Content/logo/KQM.png" alt="Logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/ffffff?text=Logo+Error'">
                 <h3>Luật Chơi "Escape The Scam"</h3>
                 <ul id="game-rules">
                     <li>Dùng ◀ ▶ / phím mũi tên để di chuyển.</li>
                     <li>Dùng Ⓐ / phím Lên để nhảy.</li>
+                    <li>Dùng Ⓑ / phím Xuống để ngồi (khi đang lớn).</li>
                     <li>Tránh 'Scammer' (kẻ thù).</li>
                     <li>Húc vào hộp [?] để trả lời câu hỏi.</li>
                     <li>Trả lời sai sẽ bị trừ 1 mạng!</li>
@@ -89,6 +90,7 @@
         </div>
         <div id="action-buttons">
             <button id="btn-jump">Ⓐ</button>
+            <button id="btn-down">Ⓑ</button> <!-- Nút ngồi -->
         </div>
     </div>
 
@@ -153,10 +155,10 @@
         const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
         // --- Hàm khởi tạo Game (QUAN TRỌNG) ---
-        // (Hàm này được định nghĩa trong main.js, chúng ta chỉ gọi nó)
+        // (Hàm này phải được định nghĩa trong main.js)
         if (typeof initGame !== 'function') {
              console.error("Lỗi nghiêm trọng: hàm initGame() không được định nghĩa trong main.js!");
-             alert("Lỗi tải game!");
+             alert("Lỗi tải game! (initGame failed)");
              return;
         }
 
@@ -258,8 +260,10 @@
             } else {
                 quizOptionBtns[currentCorrectAnswerIndex].classList.add('correct'); 
                 if (currentMarioRef && !currentMarioRef.dead) {
-                     currentMarioRef.hurt(null); // Gọi hàm hurt() của Mario để trừ mạng
-                     if(currentMarioRef.lifes < 0) { return; } // Nếu hết mạng, hàm hurt sẽ gọi die và reload (sẽ kích hoạt game over)
+                     // Sửa: Gọi thẳng hàm 'hurt' của Mario
+                     currentMarioRef.hurt(null); 
+                     // Logic game over sẽ được xử lý tự động bởi Level.reload
+                     if(currentMarioRef.lifes < 0) { return; } 
                 }
                  setTimeout(() => { // Cho thử lại nếu sai
                      quizExplanation.classList.add('hidden'); 
@@ -267,7 +271,7 @@
                           btn.disabled = false;
                           btn.className = 'quiz-option-btn'; 
                      }
-                 }, 2000); // Tăng thời gian chờ xem giải thích
+                 }, 2000); // Tăng thời gian chờ
             }
         }
 
@@ -294,19 +298,25 @@
              var btnLeft = document.getElementById('btn-left');
              var btnRight = document.getElementById('btn-right');
              var btnJump = document.getElementById('btn-jump');
-             
+             var btnDown = document.getElementById('btn-down'); // Lấy nút Down
+
              btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(37, 'keydown'); }, { passive: false });
              btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(37, 'keyup'); }, { passive: false });
              btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(39, 'keydown'); }, { passive: false });
              btnRight.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(39, 'keyup'); }, { passive: false });
              btnJump.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(38, 'keydown'); }, { passive: false }); // 38=Up
              btnJump.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(38, 'keyup'); }, { passive: false });
+
+             // Thêm listener cho Nút Xuống (Ngồi)
+             if (btnDown) { 
+                 btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(40, 'keydown'); }, { passive: false }); // 40 = Mũi tên xuống
+                 btnDown.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(40, 'keyup'); }, { passive: false });
+             }
         }
 
         // --- Game Over ---
         window.handleGameOver = function() { 
             console.log("GAME OVER triggered!");
-            // Lấy level từ biến toàn cục
             if (!currentLevelRef && window.level) { currentLevelRef = window.level; } 
             if (currentLevelRef && currentLevelRef.loop) {
                  currentLevelRef.pause();
@@ -318,7 +328,6 @@
             controls.classList.add('hidden'); 
             
              setTimeout(() => { 
-                // TODO: Thay alert bằng màn hình Game Over đẹp
                 alert("GAME OVER! Bạn đã hết mạng. Nhấn OK để chơi lại.");
                  window.location.reload(); 
             }, 100); 

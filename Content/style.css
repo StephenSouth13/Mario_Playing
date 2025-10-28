@@ -2,9 +2,9 @@
    PHẦN 0: CÀI ĐẶT CƠ BẢN & RESET
    ======================================= */
 
-/* Import font chữ pixel retro */
+/* Import font chữ pixel retro (cho điểm số) */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-/* Import font chữ hiện đại, dễ đọc (cho quiz) */
+/* Import font chữ hiện đại, dễ đọc (cho UI) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 
@@ -27,7 +27,8 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Inter', Arial, sans-serif; /* Font mặc định MỚI */
+    /* --- SỬA FONT CHỮ --- */
+    font-family: 'Inter', Arial, sans-serif; /* Đặt Inter làm font mặc định */
 }
 
 /* Helper class để ẩn phần tử */
@@ -40,9 +41,9 @@ html, body {
 
 /* Đảm bảo canvas scale không bị mờ */
  #game {
-      image-rendering: -moz-crisp-edges; /* Firefox */
-      image-rendering: -webkit-crisp-edges; /* Webkit */
-      image-rendering: pixelated; /* Standard */
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
       image-rendering: crisp-edges;
  }
 
@@ -57,7 +58,7 @@ html, body {
     border: 2px solid #333; 
     overflow: hidden;
     transform-origin: top left; 
-    background-color: #5c94fc; /* Màu nền trời mặc định */
+    background-color: #5c94fc; 
     box-shadow: 0 5px 25px rgba(0,0,0,0.6); 
     opacity: 1; 
     transition: opacity 0.3s ease-in-out; 
@@ -71,13 +72,14 @@ html, body {
     z-index: 0;
 }
 
+/* Font 'SMB' cho điểm số trong game */
 .gauge {
     margin: 0; padding: 0; 
     height: 50px; 
     position: absolute; 
     top: 15px; 
     z-index: 1000;
-    font-family: 'SMB', 'Press Start 2P', cursive; 
+    font-family: 'SMB', 'Press Start 2P', cursive; /* Giữ font Mario ở đây */
     font-size: 1.8em; 
     font-weight: normal; 
     color: white; 
@@ -94,9 +96,10 @@ html, body {
     left: 15px; 
     text-align: left; 
     width: auto; 
+    right: auto; 
 }
 
-/* Sửa đường dẫn ảnh tại đây nếu cần */
+/* Đường dẫn ảnh gốc của game */
 #coin {
     height: 32px; width: 32px; 
     background-image: url('mario-objects.png'); 
@@ -108,9 +111,10 @@ html, body {
     right: 60px; 
     text-align: right;
     width: 50px;
+    left: auto; 
 }
 
-/* Sửa đường dẫn ảnh tại đây nếu cần */
+/* Đường dẫn ảnh gốc của game */
 #live {
     height: 40px; width: 40px; 
     background-image: url('mario-sprites.png'); 
@@ -118,6 +122,7 @@ html, body {
     top: 12px; right: 15px;
 }
 
+/* Font 'Press Start 2P' (retro) cho Tên/MSSV trong game */
 .gauge-text {
     width: auto; 
     max-width: 350px; 
@@ -127,7 +132,7 @@ html, body {
     text-align: center; 
     right: auto; 
     top: auto;   
-    font-family: 'Press Start 2P', cursive; 
+    font-family: 'Press Start 2P', cursive; /* Giữ font retro ở đây */
     white-space: nowrap; 
     overflow: hidden; 
     text-overflow: ellipsis; 
@@ -143,14 +148,15 @@ html, body {
 }
 
 /* =======================================
-   2. CSS MÀN HÌNH ĐĂNG NHẬP ("SIÊU ĐẸP ĐỈNH")
+   2. CSS MÀN HÌNH ĐĂNG NHẬP (DÙNG FONT INTER)
    ======================================= */
 
 #login-screen {
-    font-family: 'Press Start 2P', cursive;
-    /* Sửa đường dẫn ảnh nền tại đây nếu cần */
+    /* --- SỬA FONT CHỮ --- */
+    font-family: 'Inter', Arial, sans-serif; 
+    /* Giả sử ảnh nền ở Content/bg/cyber-bg.png */
     background: #050505 url('bg/cyber-bg.png') center center/cover no-repeat fixed; 
-    color: #0f0;
+    color: #eee; /* Đổi màu chữ chính thành trắng xám */
     background-image: repeating-linear-gradient(transparent 0, rgba(0, 0, 0, 0.1) 1px, transparent 2px), url('bg/cyber-bg.png'); 
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
@@ -174,12 +180,12 @@ html, body {
 #login-container {
     display: flex; flex-direction: row; 
     width: 100%; max-width: 900px; 
-    background: rgba(0, 10, 0, 0.85); 
-    border: 1px solid rgba(0, 255, 0, 0.5); 
-    box-shadow: 0 0 30px rgba(0, 255, 0, 0.3), 0 0 15px rgba(0, 255, 0, 0.5) inset; 
+    background: rgba(10, 10, 10, 0.85); /* Nền xám đen */
+    border: 1px solid #333; /* Viền xám */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.1) inset; 
     border-radius: 12px; 
     overflow: hidden; 
-    backdrop-filter: blur(4px); 
+    backdrop-filter: blur(8px); 
     transform: scale(1); 
     transition: transform 0.3s ease-out; 
 }
@@ -191,70 +197,80 @@ html, body {
 }
 
 #login-info {
-    color: #0e0; font-size: 0.7em; line-height: 1.7; 
-    border-right: 1px solid rgba(0, 255, 0, 0.2); 
+    color: #ccc; font-size: 0.9em; line-height: 1.7; /* Chữ to rõ hơn */
+    border-right: 1px solid #333; 
 }
 
 #ueh-logo {
     display: block; max-width: 150px; 
     margin: 0 auto 25px auto; 
-    filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.6));
+    filter: none; /* Bỏ filter xanh */
     background: none; border-radius: 0; padding: 0; border: none;
 }
 
 #login-info h3 {
-    color: #8f8; text-shadow: 0 0 10px #0f0;
-    text-align: center; font-size: 1.1em; 
+    color: #fff; /* Chữ trắng */
+    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+    text-align: center; font-size: 1.3em; /* To hơn */
     margin-bottom: 15px;
-    border-bottom: 1px dashed rgba(0, 255, 0, 0.4); 
+    border-bottom: 1px dashed #444; /* Viền xám */
     padding-bottom: 8px;
+    font-weight: 700; /* Đậm */
 }
 
 #game-rules { list-style: none; padding-left: 0; margin-top: 5px; }
-#game-rules li { position: relative; padding-left: 22px; margin-bottom: 10px; }
+#game-rules li { position: relative; padding-left: 22px; margin-bottom: 10px; color: #999; }
 #game-rules li::before {
-    content: '>>'; font-family: monospace; 
-    color: #0f0; position: absolute; left: 0; top: 0;
-    text-shadow: 0 0 5px #0f0;
+    content: '»'; 
+    color: #0af; /* Đổi màu icon thành xanh dương */
+    position: absolute; left: 0; top: 0;
+    text-shadow: 0 0 5px rgba(0,170,255,0.5);
 }
 
 #login-box { text-align: center; }
 #login-box h2 {
-    margin-top: 0; font-size: 1.4em; 
-    text-shadow: 0 0 12px #0f0; margin-bottom: 15px; color: #8f8;
+    margin-top: 0; font-size: 1.6em; /* To hơn */
+    text-shadow: 0 0 10px rgba(255,255,255,0.1); 
+    margin-bottom: 15px; color: #fff;
+    font-weight: 700;
 }
-#login-box p { font-size: 0.65em; color: #0d0; margin-bottom: 25px; }
+#login-box p { font-size: 0.8em; color: #888; margin-bottom: 25px; }
 #login-box input[type="text"] {
     display: block; width: 100%; box-sizing: border-box; 
-    padding: 13px; margin-bottom: 16px; 
-    border: 1px solid #0f0; background: rgba(0,0,0,0.6); 
-    color: #8f8; border-radius: 5px; 
-    font-family: 'Press Start 2P', cursive; font-size: 0.7em; 
+    padding: 14px; margin-bottom: 16px; 
+    border: 1px solid #444; /* Viền xám */
+    background: rgba(0,0,0,0.3); 
+    color: #fff; /* Chữ trắng */
+    border-radius: 5px; 
+    font-family: 'Inter', Arial, sans-serif; /* Font Inter */
+    font-size: 0.9em; 
     transition: all 0.3s;
 }
-#login-box input[type="text"]::placeholder { color: #080; } 
+#login-box input[type="text"]::placeholder { color: #666; } 
 #login-box input[type="text"]:focus {
-    outline: none; box-shadow: 0 0 18px #0f0, 0 0 5px #8f8 inset; 
-    border-color: #8f8; background: rgba(0, 15, 0, 0.7); 
+    outline: none; 
+    box-shadow: 0 0 18px rgba(0,170,255,0.5), 0 0 5px rgba(0,170,255,0.7) inset; 
+    border-color: #0af; /* Viền xanh dương */
+    background: rgba(0, 10, 20, 0.5); 
 }
 
 #login-box button {
     width: 100%; padding: 15px; border: none; border-radius: 5px;
-    background: linear-gradient(180deg, #0f0 0%, #0b0 100%); 
-    color: #010; font-family: 'Press Start 2P', cursive; font-size: 0.9em; 
-    font-weight: bold; cursor: pointer; transition: all 0.2s ease;
-    text-shadow: 0 1px 1px rgba(255,255,255,0.3); margin-top: 8px; 
-    box-shadow: 0 4px 0 #050, 0 6px 10px rgba(0,0,0,0.4); 
-    letter-spacing: 1px;
+    background: linear-gradient(180deg, #007bff 0%, #0056b3 100%); /* Gradient xanh dương */
+    color: #fff; /* Chữ trắng */
+    font-family: 'Inter', Arial, sans-serif; font-size: 1em; 
+    font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3); margin-top: 8px; 
+    box-shadow: 0 4px 0 #004494, 0 6px 10px rgba(0,0,0,0.4); 
 }
 #login-box button:hover {
-    background: linear-gradient(180deg, #fff 0%, #dfd 100%); 
-    color: #080;
-    box-shadow: 0 0 25px #fff, 0 0 15px #0f0, 0 4px 0 #050, 0 6px 10px rgba(0,0,0,0.4); 
+    background: linear-gradient(180deg, #0088ff 0%, #0062cc 100%); 
+    color: #fff;
+    box-shadow: 0 0 25px rgba(0,170,255,0.5), 0 4px 0 #004494, 0 6px 10px rgba(0,0,0,0.4); 
 }
 #login-box button:active {
      transform: translateY(2px); 
-     box-shadow: 0 2px 0 #050, 0 4px 5px rgba(0,0,0,0.5); 
+     box-shadow: 0 2px 0 #004494, 0 4px 5px rgba(0,0,0,0.5); 
 }
 
 /* =======================================
@@ -262,22 +278,21 @@ html, body {
    ======================================= */
 @media (max-width: 800px) { 
     #login-container { flex-direction: column; max-width: 95%; width: auto; }
-    #login-info { border-right: none; border-bottom: 1px solid rgba(0, 255, 0, 0.2); }
+    #login-info { border-right: none; border-bottom: 1px solid #333; }
     #login-box { border-left: none; }
-    .login-column { padding: 20px 25px; } 
-    #login-info { font-size: 0.6em; } 
-    #login-box h2 { font-size: 1.2em; }
-    #login-box p { font-size: 0.55em; }
-    #login-box input[type="text"] { font-size: 0.6em; padding: 10px; }
-    #login-box button { font-size: 0.7em; padding: 11px; }
-    #ueh-logo { max-width: 100px; margin-bottom: 20px;}
+    .login-column { padding: 25px 30px; } 
+    #login-info { font-size: 0.8em; } 
+    #login-box h2 { font-size: 1.4em; }
+    #login-box p { font-size: 0.7em; }
+    #login-box input[type="text"] { font-size: 0.8em; padding: 12px; }
+    #login-box button { font-size: 0.9em; padding: 12px; }
+    #ueh-logo { max-width: 120px; margin-bottom: 20px;}
 }
 
 /* =======================================
    4. CSS CHO JOYSTICK ("ĐẸP ĐỈNH")
    ======================================= */
 #mobile-controls {
-    /* Ẩn bằng class 'hidden' trong HTML */
     position: fixed; bottom: 0; left: 0; width: 100%;
     z-index: 3000; padding: 20px; 
     box-sizing: border-box; user-select: none; -webkit-user-select: none;
@@ -316,19 +331,18 @@ html, body {
 }
 
 /* =======================================
-   5. CSS CHO QUIZ POP-UP (NÂNG CẤP XỊN XÒ)
+   5. CSS CHO QUIZ POP-UP (NÂNG CẤP "XỊN XÒ" VỚI FONT INTER)
    ======================================= */
 #quiz-overlay {
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
-    /* Nền đen trong suốt có hiệu ứng mờ (blur) */
     background: rgba(0, 0, 0, 0.7); 
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     
     z-index: 4000; 
     display: flex; justify-content: center; align-items: center;
-    font-family: 'Inter', Arial, sans-serif; /* Font chữ hiện đại, dễ đọc */
+    font-family: 'Inter', Arial, sans-serif; /* Font Inter */
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0s linear 0.3s;
@@ -341,24 +355,20 @@ html, body {
     transition-delay: 0s;
     pointer-events: auto;
 }
-/* Keyframe cho pop-up bay vào */
 @keyframes quizPopIn {
     from { opacity: 0; transform: scale(0.8) translateY(20px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
-
 #quiz-box {
-    /* Gradient nền tinh tế */
     background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
     color: #e5e5e5; 
     padding: 30px; 
-    border-radius: 12px; /* Bo góc nhiều hơn */
+    border-radius: 12px; 
     border: 1px solid #444; 
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     width: 100%;
     max-width: 600px; 
     text-align: center;
-    /* Áp dụng animation */
     transform: scale(0.8);
     opacity: 0;
 }
@@ -366,13 +376,14 @@ html, body {
     animation: quizPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
+/* Câu hỏi dùng font Inter đậm */
 #quiz-question {
-    font-family: 'Press Start 2P', cursive; /* Font retro cho câu hỏi */
-    font-size: 1.1em; /* Điều chỉnh kích thước */
+    font-family: 'Inter', Arial, sans-serif;
+    font-weight: 700; /* Đậm */
+    font-size: 1.4em; /* To rõ */
     margin-bottom: 30px;
-    line-height: 1.6; /* Dãn dòng */
+    line-height: 1.5;
     color: #fff; 
-    text-shadow: 0 0 5px rgba(255,255,255,0.2);
 }
 #quiz-options {
     display: grid;
@@ -380,7 +391,6 @@ html, body {
     gap: 15px; 
     margin-bottom: 25px;
 }
-/* 2 cột trên desktop */
 @media (min-width: 600px) { #quiz-options { grid-template-columns: 1fr 1fr; } }
 
 .quiz-option-btn {
@@ -389,50 +399,49 @@ html, body {
     background: #333; 
     color: #ddd; 
     font-size: 0.95em; 
-    font-family: 'Inter', Arial, sans-serif; /* Font dễ đọc cho câu trả lời */
+    font-family: 'Inter', Arial, sans-serif; /* Font Inter */
     font-weight: 500;
-    border-radius: 8px; /* Bo góc hơn */
+    border-radius: 8px; 
     cursor: pointer;
     transition: all 0.2s ease-out;
     text-align: left; 
     box-shadow: 0 2px 3px rgba(0,0,0,0.3);
 }
-/* Span cho A, B, C, D */
 .quiz-option-btn span {
      display: inline-block;
-     font-weight: 700; /* Đậm hơn */
+     font-weight: 700; 
      margin-right: 10px;
-     color: #888; /* Màu xám */
+     color: #888; 
      transition: color 0.2s ease-out;
 }
 .quiz-option-btn:hover:not(:disabled) { 
     background: #444; 
-    border-color: #0f0; /* Viền xanh lá khi hover */
-    transform: translateY(-2px); /* Hiệu ứng nổi lên */
-    box-shadow: 0 6px 12px rgba(0, 255, 0, 0.15);
+    border-color: #007bff; /* Đổi viền xanh dương */
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.15);
 }
 .quiz-option-btn:hover:not(:disabled) span {
-    color: #0f0; /* Chữ A, B, C... đổi màu */
+    color: #007bff; /* Đổi A, B, C... thành màu xanh */
 }
 .quiz-option-btn:active:not(:disabled) { 
     transform: scale(0.98) translateY(0); 
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 .quiz-option-btn.correct { 
-    background: linear-gradient(45deg, #28a745, #218838); /* Gradient */
+    background: linear-gradient(45deg, #28a745, #218838); 
     border-color: #3fC; 
     color: white; font-weight: 700;
     box-shadow: 0 0 15px rgba(50, 255, 100, 0.4);
 } 
 .quiz-option-btn.correct span { color: white; } 
 .quiz-option-btn.incorrect { 
-    background: linear-gradient(45deg, #dc3545, #c82333); /* Gradient */
+    background: linear-gradient(45deg, #dc3545, #c82333); 
     border-color: #f55; 
     color: white; font-weight: 700;
     box-shadow: 0 0 15px rgba(255, 50, 50, 0.4);
 } 
 .quiz-option-btn.incorrect span { color: white; }
-.quiz-option-btn:disabled:not(.correct):not(.incorrect) { opacity: 0.4; cursor: default; }
+.quiz-option-btn:disabled:not(.correct):not(.incorrect) { opacity: 0.5; cursor: default; }
 
 #quiz-explanation {
     margin-top: 20px; padding: 15px;
@@ -442,7 +451,7 @@ html, body {
     color: #ccc; 
     text-align: left;
     border: 1px dashed #555;
-    animation: fadeIn 0.3s ease-out 0.2s backwards; /* Xuất hiện sau */
+    animation: fadeIn 0.3s ease-out 0.2s backwards; 
 }
 
 #quiz-continue-btn {
