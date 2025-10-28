@@ -1,6 +1,6 @@
 ﻿/* =======================================
-   PHẦN 0: CÀI ĐẶT CƠ BẢN & RESET
-   ======================================== */
+    PHẦN 0: CÀI ĐẶT CƠ BẢN & RESET
+    ======================================== */
 /*D:\Game\Mario_Playing\Content\style.css */
 /* Import font chữ pixel retro (cho điểm số) */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -28,7 +28,10 @@ html, body {
     margin: 0;
     padding: 0;
     background: #000; 
-    overflow: hidden; 
+    /* Thay overflow: hidden bằng touch-action để hỗ trợ Mobile tốt hơn */
+    touch-action: pan-y; 
+    overflow: hidden;
+    
     display: flex;
     justify-content: center;
     align-items: center;
@@ -55,6 +58,7 @@ html, body {
     box-shadow: 0 5px 25px rgba(0,0,0,0.6); 
     opacity: 1; 
     transition: opacity 0.3s ease-in-out; 
+    /* Tối ưu hóa pixel rendering */
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-crisp-edges;
     image-rendering: pixelated;
@@ -64,8 +68,9 @@ html, body {
 }
 
 /* =======================================
-   PHẦN 1: CSS CHO GAME CHÍNH (#game, #world, gauges...)
-   ======================================== */
+    PHẦN 1: CSS CHO GAME CHÍNH (#game, #world, gauges...)
+    FIX: Định vị lại các UI element
+    ======================================== */
 
 #world { 
     margin: 0; 
@@ -78,10 +83,10 @@ html, body {
     z-index: 0;
 }
 
-.gauge {
+/* Định vị chung cho tất cả Gauges */
+.gauge, .gaugeSprite {
     margin: 0; 
     padding: 0; 
-    height: 50px; 
     position: absolute; 
     top: 15px; 
     z-index: 1000;
@@ -90,15 +95,15 @@ html, body {
     font-weight: normal; 
     color: white; 
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8); 
+    white-space: nowrap; /* Quan trọng để tránh lỗi wrap chữ */
 }
 
 .gaugeSprite {
-    margin: 0; 
-    padding: 0; 
-    z-index: 1000; 
-    position: absolute;
+    /* Loại bỏ font size lớn cho sprite */
+    font-size: 1em; 
 }
 
+/* 1. Xu (Coin) - Vị trí Trái */
 #coinNumber {
     left: 15px; 
     text-align: left; 
@@ -107,30 +112,43 @@ html, body {
 }
 
 #coin {
+    left: 85px; /* Cách Số Xu (left: 15px) 70px */
     height: 32px; 
     width: 32px; 
     background-image: url('mario-objects.png'); 
     background-position: 0 0; 
     top: 15px; 
-    left: 85px; 
 }
 
-#liveNumber {
-    right: 60px; 
-    text-align: right;
-    width: 50px;
-    left: auto; 
+/* 2. Timer (MỚI) - Vị trí Giữa Trái */
+#game-timer-display {
+    left: 200px; /* Vị trí cố định */
+    top: 15px; 
+    font-size: 1.8em; 
+    color: white; 
+    text-align: center;
+    width: 150px; 
+    right: auto;
 }
 
+/* 3. Mạng (Live) - Vị trí Phải */
 #live {
+    right: 15px; /* Cách lề phải 15px */
+    top: 12px; 
     height: 40px; 
     width: 40px; 
     background-image: url('mario-sprites.png'); 
     background-position: 0 -430px; 
-    top: 12px; 
-    right: 15px;
 }
 
+#liveNumber {
+    right: 60px; /* Cách Icon Mạng 50px */
+    text-align: right;
+    width: auto;
+    left: auto; 
+}
+
+/* 4. Thông tin Người chơi (Player Info) - Vị trí Giữa */
 .gauge-text {
     width: auto; 
     max-width: 350px; 
@@ -139,15 +157,15 @@ html, body {
     margin-left: 0; 
     text-align: center; 
     right: auto; 
-    top: auto;   
-    font-family: 'Press Start 2P', cursive;
+    top: auto; 
+    font-family: 'Press Start 2P', cursive; /* Giữ nguyên font pixel */
     white-space: nowrap; 
     overflow: hidden; 
     text-overflow: ellipsis; 
 }
 
 #playerName { 
-    top: 15px; 
+    top: 13px; /* Dịch lên 1 chút */
     font-size: 1.0em; 
 }
 
@@ -156,36 +174,44 @@ html, body {
     font-size: 0.8em; 
 }
 
-.figure {
-    margin: 0; 
-    padding: 0; 
-    z-index: 99; 
-    position: absolute;
+/* 5. Thông báo Phạt Thời gian (MỚI) */
+#penalty-notification {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 50%; 
+    font-size: 2.5em;
+    color: var(--button-red);
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 8px;
+    animation: pulse 0.5s infinite alternate;
 }
 
+@keyframes pulse {
+    from { opacity: 1; transform: scale(1.0) translateX(-50%); }
+    to { opacity: 0.8; transform: scale(1.05) translateX(-50%); }
+}
+
+/* Figure và Matter (Không thay đổi) */
+.figure {
+    margin: 0; padding: 0; z-index: 99; position: absolute;
+}
 .matter {
-    margin: 0; 
-    padding: 0; 
-    z-index: 95; 
-    position: absolute; 
-    width: 32px; 
-    height: 32px;
+    margin: 0; padding: 0; z-index: 95; position: absolute; width: 32px; height: 32px;
 }
 
 /* =======================================
-   2. CSS MÀN HÌNH ĐĂNG NHẬP (TONE XANH DƯƠNG)
-   ======================================== */
-
+    2. CSS MÀN HÌNH ĐĂNG NHẬP (Giữ nguyên)
+    ======================================== */
 #login-screen {
     font-family: 'Inter', Arial, sans-serif; 
     background: #050505 url('bg/cyber-bg.png') center center/cover no-repeat fixed; 
     color: #eee; 
     background-image: repeating-linear-gradient(transparent 0, rgba(0, 0, 0, 0.1) 1px, transparent 2px), url('bg/cyber-bg.png'); 
     position: fixed; 
-    top: 0; 
-    left: 0;
-    width: 100%; 
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     z-index: 2000;
     display: flex; 
     justify-content: center; 
@@ -202,10 +228,10 @@ html, body {
 }
 
 @keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-  40%, 60% { transform: translate3d(3px, 0, 0); }
+ 10%, 90% { transform: translate3d(-1px, 0, 0); }
+ 20%, 80% { transform: translate3d(2px, 0, 0); }
+ 30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+ 40%, 60% { transform: translate3d(3px, 0, 0); }
 }
 
 #login-container {
@@ -357,8 +383,8 @@ html, body {
 }
 
 /* =======================================
-   3. CSS RESPONSIVE CHO MÀN HÌNH ĐĂNG NHẬP
-   ======================================== */
+    3. CSS RESPONSIVE CHO MÀN HÌNH ĐĂNG NHẬP
+    ======================================== */
 @media (max-width: 800px) { 
     #login-container { 
         flex-direction: column; 
@@ -399,15 +425,15 @@ html, body {
 }
 
 /* =======================================
-   4. CSS CHO JOYSTICK (Tối ưu Mobile)
-   ======================================== */
+    4. CSS CHO JOYSTICK & FIX MOBILE LANDSCAPE
+    ======================================== */
 #mobile-controls {
     position: fixed; 
     bottom: 0; 
     left: 0; 
     width: 100%;
     z-index: 3000; 
-    padding: 15px; /* Giảm padding */
+    padding: 15px; 
     box-sizing: border-box; 
     user-select: none; 
     -webkit-user-select: none;
@@ -436,7 +462,7 @@ html, body {
 
 #mobile-controls button {
     width: 55px; 
-    height: 55px; /* Giảm kích thước */
+    height: 55px; 
     background: radial-gradient(circle at 60% 40%, rgba(120, 120, 120, 0.8) 0%, rgba(50, 50, 50, 0.8) 100%); 
     border: none; 
     border-radius: 50%; 
@@ -444,7 +470,7 @@ html, body {
     font-size: 1.8em; 
     line-height: 55px; 
     text-align: center; 
-    margin: 0 5px; /* Giảm khoảng cách */
+    margin: 0 5px; 
     box-shadow: 0 4px 8px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.15), inset 0 -2px 3px rgba(0,0,0,0.3); 
     text-shadow: 0 1px 3px rgba(0,0,0,0.8); 
     transition: all 0.08s ease-out; 
@@ -453,7 +479,7 @@ html, body {
 
 #btn-jump {
     width: 70px; 
-    height: 70px; /* Giảm kích thước */
+    height: 70px; 
     line-height: 70px;
     background: radial-gradient(circle at 60% 40%, rgba(240, 80, 80, 0.8) 0%, rgba(170, 40, 40, 0.9) 100%); 
     font-size: 2.2em;
@@ -469,19 +495,50 @@ html, body {
     background: radial-gradient(circle at 60% 40%, rgba(255, 110, 110, 0.9) 0%, rgba(190, 60, 60, 0.95) 100%);
 }
 
+/* FIX: Tối ưu hóa Joystick khi xoay ngang (Landscape) */
+@media (max-height: 500px) and (orientation: landscape) {
+    #dpad, #action-buttons {
+        bottom: 5px; /* Giảm khoảng cách từ đáy */
+        opacity: 0.95; 
+    }
+    
+    #dpad {
+        left: 10px; 
+    }
+
+    #action-buttons {
+        right: 10px; 
+        /* Xếp nút hành động gần nhau hơn */
+        display: flex;
+        flex-direction: row-reverse; 
+    }
+
+    #mobile-controls button {
+        width: 50px; 
+        height: 50px; 
+        line-height: 50px; 
+        font-size: 1.5em; 
+        margin: 0 4px; 
+    }
+
+    #btn-jump {
+        width: 65px; 
+        height: 65px; 
+        line-height: 65px;
+        font-size: 1.8em;
+    }
+}
+
 /* =======================================
-   5. CSS CHO QUIZ POP-UP (NÂNG CẤP "XỊN XÒ" VỚI FONT INTER)
-   ======================================== */
+    5. CSS CHO QUIZ POP-UP (Giữ nguyên)
+    ======================================== */
 #quiz-overlay {
     position: fixed; 
-    top: 0; 
-    left: 0;
-    width: 100%; 
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.7); 
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    
     z-index: 4000; 
     display: flex; 
     justify-content: center; 

@@ -8,18 +8,14 @@
  */
 //D:\Game\Mario_Playing\Scripts\main.js
 // === KHAI BÁO BIẾN TOÀN CỤC ===
-// Kích thước gốc của game (lấy từ CSS: #game)
-// Thay đổi giá trị này để khớp với kích thước Hiển thị thực tế 
-// Của khối #game trong CSS (640x480).
 const GAME_WIDTH = 640; 
 const GAME_HEIGHT = 480;
-// var level = null;
-// Biến toàn cục để chứa đối tượng game chính
 var level = null; 
 // THÔNG SỐ SPRITE CỦA UEH PLAYER 
-const PLAYER_WIDTH_SMALL = 32; 
-const PLAYER_HEIGHT_SMALL = 23; // <<< DÒNG CẦN CHÚ Ý NHẤT
+const PLAYER_WIDTH_SMALL = 32; 
+const PLAYER_HEIGHT_SMALL = 23; 
 const PLAYER_HEIGHT_BIG = 64;
+
 /*
  * -------------------------------------------
  * BASE CLASS (Lớp cơ sở)
@@ -84,8 +80,8 @@ var Base = Class.extend({
                 // Tính toán và cập nhật background-position để hiển thị frame mới
                  var bgX = -(this.image.x + this.width * (this.rewindFrames ? (this.frames - 1 - this.currentFrame) : this.currentFrame));
                  var bgY = -this.image.y;
-                $el.css('background-position', bgX + 'px ' + bgY + 'px');
-                this.currentFrame++;
+                 $el.css('background-position', bgX + 'px ' + bgY + 'px');
+                 this.currentFrame++;
             }
         }
     },
@@ -108,7 +104,7 @@ var Gauge = Base.extend({
              // Trích xuất URL ảnh từ CSS
              var imgUrlMatch = bgImage.match(/url\(["']?(.*?)["']?\)/);
              if (imgUrlMatch && imgUrlMatch[1]) {
-                  this.setImage(imgUrlMatch[1], startImgX, startImgY); // Lưu thông tin ảnh
+                 this.setImage(imgUrlMatch[1], startImgX, startImgY); // Lưu thông tin ảnh
              } else {
                  // console.warn("Could not parse background image URL for gauge:", id, bgImage);
              }
@@ -159,7 +155,6 @@ var Level = Base.extend({
             settings.lifes = mario.lifes; 
             settings.coins = mario.coins;
             // Giữ nguyên state (lớn/nhỏ) VÀ state (lửa) khi hồi sinh
-            // Vì Mario.hurt() đã xử lý việc thu nhỏ nếu > small
             settings.state = mario.state; 
             settings.marioState = mario.marioState; 
         } else {
@@ -171,10 +166,10 @@ var Level = Base.extend({
         }
         
         // --- KIỂM TRA GAME OVER ---
-        if(settings.lifes < 0) {
-            console.log("Game Over! Calling handleGameOver...");
+        if(settings.lifes < 0) { 
+            console.log("Game Over: Out of lives. Calling handleGameOver...");
             if(typeof window.handleGameOver === 'function') {
-                 window.handleGameOver(); // Gọi hàm xử lý Game Over từ index.html
+                 window.handleGameOver(false); // Gọi hàm xử lý Game Over từ index.html
             } else {
                  alert("Game Over! Hết mạng."); 
                  window.location.reload();
@@ -210,7 +205,7 @@ var Level = Base.extend({
         this.start(); // Bắt đầu lại game loop
     },
     
-    // Tải dữ liệu màn chơi
+    // Tải dữ liệu màn chơi (Giữ nguyên logic)
     load: function(levelData) {
         if (!levelData) { console.error("Invalid level data!"); return;}
         console.log("Loading level:", levelData.id);
@@ -265,8 +260,8 @@ var Level = Base.extend({
                                 instance.assignQuestion(qIndex); 
                                 questionCounter++; // Tăng biến đếm
                             } else {
-                                // console.warn(`Level ${this.id}, Box ${questionCounter}: Question index ${qIndex} out of bounds! Using 0.`);
-                                instance.assignQuestion(0); // Dùng câu 0 nếu hết câu hỏi
+                                // Fallback (chỉ nên xảy ra khi thiếu Questions.js)
+                                instance.assignQuestion(0); 
                             }
                         }
                     } catch (e) {
@@ -284,14 +279,18 @@ var Level = Base.extend({
         if (this.nextCycles > 0) return; // Vẫn đang chờ
 
         const nextLevelId = this.id + 1;
-        // --- SỬA LẠI: KẾT THÚC GAME SAU MÀN 3 (ID=2) ---
-        if (nextLevelId >= 3 || nextLevelId >= definedLevels.length) { // Nếu đã hoàn thành màn 2 (hoặc màn cuối)
+        // --- KẾT THÚC GAME SAU MÀN 3 (ID=2) ---
+        if (nextLevelId >= 3 || nextLevelId >= definedLevels.length) { 
             this.pause(); keys.reset(); keys.unbind();
             if(this.sounds) this.sounds.stopMusic(); 
             
-            // TODO: Thay alert bằng màn hình chiến thắng
-            alert("Chúc mừng! Bạn đã hoàn thành 3 màn chơi và vượt qua các cạm bẫy lừa đảo!"); 
-            window.location.reload(); 
+            // **GỌI HÀM CHIẾN THẮNG TOÀN CỤC (handleGameVictory)**
+            if(typeof window.handleGameVictory === 'function') {
+                window.handleGameVictory(); 
+            } else {
+                alert("Chúc mừng! Game đã hoàn thành."); 
+                window.location.reload(); 
+            }
             return; 
         }
         
@@ -327,12 +326,8 @@ var Level = Base.extend({
     getGridHeight: function() { return this.raw ? this.raw.height : 0; },
     
     setSounds: function(manager) { this.sounds = manager; },
-    playSound: function(label) { 
-        // if(this.sounds) this.sounds.play(label); // Tạm thời tắt
-    },
-    playMusic: function(label) { 
-        // if(this.sounds) this.sounds.sideMusic(label); // Tạm thời tắt
-    },
+    playSound: function(label) {  }, // Tạm thời tắt
+    playMusic: function(label) {  }, // Tạm thời tắt
 
     reset: function() {
         console.log("Resetting level objects...");
@@ -353,7 +348,7 @@ var Level = Base.extend({
     tick: function() {
         if(this.nextCycles > 0) { // Đang chờ chuyển màn
             this.nextCycles--;
-            if (this.nextCycles === 0) this.nextLoad();          
+            if (this.nextCycles === 0) this.nextLoad();         
             return;
         }
         
@@ -366,7 +361,6 @@ var Level = Base.extend({
             if(figure.dead) { 
                 if(!figure.death()) { 
                     if(figure instanceof Mario) {
-                        // Mario chết xong -> gọi reload (để hồi sinh hoặc game over)
                         return this.reload(); 
                     } else {
                         if (figure.view) figure.view.remove();
@@ -377,22 +371,22 @@ var Level = Base.extend({
                 }
             } else { 
                  if(i > 0) { 
-                    for(j = i - 1; j >= 0; j--) { 
-                        if (!this.figures[i]) break; 
-                         figure = this.figures[i]; 
-                         if(figure.dead) break; 
+                     for(j = i - 1; j >= 0; j--) { 
+                         if (!this.figures[i]) break; 
+                          figure = this.figures[i]; 
+                          if(figure.dead) break; 
 
-                        opponent = this.figures[j];
-                        if (!opponent) continue; 
-                        
-                        if(!opponent.dead && Math.abs(figure.x - opponent.x) < 64 && q2q(figure, opponent)) { 
-                            figure.hit(opponent);
-                             if (!opponent.dead && !figure.dead) { 
-                                opponent.hit(figure);
-                            }
-                        }
-                    }
-                }
+                         opponent = this.figures[j];
+                         if (!opponent) continue; 
+                         
+                         if(!opponent.dead && Math.abs(figure.x - opponent.x) < 64 && q2q(figure, opponent)) { 
+                             figure.hit(opponent);
+                              if (!opponent.dead && !figure.dead) { 
+                                  opponent.hit(figure);
+                              }
+                         }
+                     }
+                 }
             }
             
             if (this.figures[i] && !this.figures[i].dead) { 
@@ -401,7 +395,6 @@ var Level = Base.extend({
             }
         }
         
-        // Chạy hoạt ảnh cho Items (hộp ?, xu tĩnh...)
         for(i = this.items.length - 1; i >= 0; i-- ) {
             if (this.items[i] && this.items[i].playFrame) { 
                  this.items[i].playFrame();
@@ -664,19 +657,20 @@ var Figure = Base.extend({
     die: function() { this.dead = true; },
 });
 
+
 /*
  * -------------------------------------------
- * MATTER CLASS (Vật thể tĩnh) - SỬA LỖI
+ * MATTER CLASS (Vật thể tĩnh)
  * -------------------------------------------
  */
 var Matter = Base.extend({
     init: function(x, y, blocking, level) {
-        if (!level || !level.world) { // Sửa lỗi: Thêm kiểm tra
+        if (!level || !level.world) { 
              console.error("Matter init: Invalid level or level.world is undefined.");
              return;
         }
         this.blocking = blocking;
-        this.view = $(DIV).addClass(CLS_MATTER).appendTo(level.world); // Đây là dòng 682
+        this.view = $(DIV).addClass(CLS_MATTER).appendTo(level.world); 
         this.level = level;
         this._super(x, y);
         this.setSize(32, 32);
@@ -712,7 +706,6 @@ var Matter = Base.extend({
 /*
  * -------------------------------------------
  * CÁC LỚP GROUND, DECORATION (Giữ nguyên)
- * (Tất cả kế thừa 'Matter' và tự động đăng ký 'reflection')
  * -------------------------------------------
  */
 var Ground = Matter.extend({
@@ -825,7 +818,7 @@ var LeftPipeSoil = Decoration.extend({
 
 /*
  * -------------------------------------------
- * ITEM CLASS (Sửa lỗi: Phải gọi _super() với ĐỦ 4 tham số)
+ * ITEM CLASS (Lớp vật thể có thể kích hoạt)
  * -------------------------------------------
  */
 var Item = Matter.extend({
@@ -836,7 +829,7 @@ var Item = Matter.extend({
         this.bounceStep = Math.ceil(10 / this.bounceFrames);
         this.bounceDir = 1;
         this.isBlocking = isBlocking;
-        // --- SỬA LỖI: Truyền 4 tham số cho Matter.init ---
+        // Truyền 4 tham số cho Matter.init
         this._super(x, y, isBlocking ? ground_blocking.all : ground_blocking.none, level); 
         this.activated = false;
         this.addToLevel(level);
@@ -845,7 +838,6 @@ var Item = Matter.extend({
         level.items.push(this);
     },
     activate: function(from) {
-        // Hàm này sẽ được các lớp con (CoinBox, MushroomBox...) ghi đè
         // Kích hoạt khi Mario va chạm từ dưới lên
         this.activated = true;
     },
@@ -882,13 +874,13 @@ var Item = Matter.extend({
 
 /*
  * -------------------------------------------
- * CHECKPOINT CLASS (MỚI)
+ * CHECKPOINT CLASS (Giữ nguyên)
  * -------------------------------------------
  */
 var Checkpoint = Item.extend({
     init: function(x, y, level) {
         this._super(x, y, false, level); 
-        this.setImage(images.objects, 714, 832); // Dùng sprite 'planted_soil_left' (tạm thời)
+        this.setImage(images.objects, 714, 832); 
         this.view.css('opacity', 0.6); 
         this.blocking = ground_blocking.none; 
         this.activated = false;
@@ -921,7 +913,7 @@ var Checkpoint = Item.extend({
 
 /*
  * -------------------------------------------
- * QUESTIONBOX CLASS (SỬA LỖI: Sửa lỗi this.bounce)
+ * QUESTIONBOX CLASS (FIX LỖI NHÂN VẬT ĐỨNG IM)
  * -------------------------------------------
  */
 var QuestionBox = Item.extend({
@@ -930,18 +922,21 @@ var QuestionBox = Item.extend({
         this.setImage(images.objects, 96, 33); 
         this.setupFrames(8, 4, false, 'QuestionBoxBlink'); 
         this.questionIndex = -1; 
-        this.isUsed = false;     
+        this.isUsed = false;      
     },
     assignQuestion: function(index) {
         this.questionIndex = index;
     },
     activate: function(from) {
         if (!this.isUsed && !this.isBouncing && from instanceof Mario) {
-            this.bounce(); // Dòng 892. Giờ sẽ hoạt động vì Item.init đã chạy đúng
+            this.bounce(); 
             this.clearFrames(); 
             this.setImage(images.objects, 514, 194); 
             this.isUsed = true; 
             this.level.playSound('mushroom'); 
+
+            // **FIX: DỪNG TẤT CẢ DI CHUYỂN CỦA MARIO**
+            from.setVelocity(0, 0); 
 
             if (typeof window.showQuiz === 'function') {
                 window.showQuiz(this.questionIndex, this); 
@@ -949,7 +944,6 @@ var QuestionBox = Item.extend({
                 console.error("showQuiz function not found!");
             }
         }
-        // Không gọi _super() của Item
     },
      playFrame: function() {
           // Gọi playFrame của Item để xử lý bounce
@@ -964,13 +958,12 @@ var QuestionBox = Item.extend({
 
 /*
  * -------------------------------------------
- * CÁC LỚP ITEM CŨ (Coin, Star, Mushroom...)
- * (SỬA LỖI: Đảm bảo truyền đủ 4 tham số cho lớp cha)
+ * CÁC LỚP ITEM KHÁC (Coin, CoinBox, Star...)
  * -------------------------------------------
  */
 var Coin = Item.extend({
     init: function(x, y, level) {
-        this._super(x, y, false, level); // SỬA LỖI (thêm false, level)
+        this._super(x, y, false, level); 
         this.setImage(images.objects, 0, 0);
         this.setupFrames(10, 4, true);
     },
@@ -1180,7 +1173,7 @@ var Mushroom = ItemFigure.extend({
 
 /*
  * -------------------------------------------
- * BULLET CLASS
+ * BULLET CLASS (Giữ nguyên)
  * -------------------------------------------
  */
 var Bullet = Figure.extend({
@@ -1192,775 +1185,3 @@ var Bullet = Figure.extend({
         this.direction = parent.direction;
         this.vy = 0;
         this.life = Math.ceil(2000 / constants.interval);
-        this.speed = constants.bullet_v;
-        this.vx = this.direction === directions.right ? this.speed : -this.speed;
-    },
-    setVelocity: function(vx, vy) {
-        this._super(vx, vy);
-        if(this.vx === 0) {
-            var s = this.speed; 
-            this.vx = this.direction === directions.right ? s : -s;
-        }
-        if(this.onground)
-            this.vy = constants.bounce;
-    },
-    move: function() {
-        if(--this.life > 0) 
-            this._super();
-        else
-            this.die();
-    },
-    hit: function(opponent) {
-        if(!(opponent instanceof Mario) && !(opponent instanceof Bullet)) { 
-            if (typeof opponent.die === 'function') opponent.die();
-            this.die();
-        }
-    },
-});
-
-/*
- * -------------------------------------------
- * HERO CLASS
- * -------------------------------------------
- */
-var Hero = Figure.extend({
-    init: function(x, y, level) {
-        this._super(x, y, level);
-    },
-});
-
-/*
- * -------------------------------------------
- * MARIO CLASS (SỬA LẠI LOGIC CHẾT/BỊ THƯƠNG)
- * -------------------------------------------
- */
-var Mario = Hero.extend({
-    init: function(x, y, level) {
-        this.standSprites = [
-            [[{ x : 0, y : 81},{ x: 481, y : 83}],[{ x : 81, y : 0},{ x: 561, y : 83}]],
-            [[{ x : 0, y : 162},{ x: 481, y : 247}],[{ x : 81, y : 243},{ x: 561, y : 247}]]
-        ];
-        this.crouchSprites = [
-            [{ x : 241, y : 0},{ x: 161, y : 0}],
-            [{ x : 241, y : 162},{ x: 241, y : 243}]
-        ];
-        this.deadly = 0;
-        this.invulnerable = 0;
-        this.width = 80;
-        this._super(x, y, level);
-        this.blinking = 0;
-        this.setOffset(-24, -30);
-        this.setSize(80, 80);
-        this.cooldown = 0;
-        this.setMarioState(mario_states.normal);
-        this.setLifes(constants.start_lives);
-        this.setCoins(0);
-        this.deathBeginWait = Math.floor(700 / constants.interval);
-        this.deathEndWait = 0;
-        this.deathFrames = Math.floor(600 / constants.interval);
-        this.deathStepUp = Math.ceil(200 / (this.deathFrames || 1)); // Tránh chia cho 0
-        this.deathStepDown = 0; // Sẽ được tính trong die()
-        this.deathDir = 1;
-        this.deathCount = 0;
-        this.direction = directions.right;
-        this.setImage(images.sprites, 81, 0);
-        this.crouching = false;
-        this.fast = false;
-    },
-    setMarioState: function(state) { this.marioState = state; },
-    setState: function(state) {
-        if(state !== this.state) {
-            this.setMarioState(mario_states.normal);
-            this._super(state);
-        }
-    },
-    setPosition: function(x, y) {
-        this._super(x, y);
-        if (!this.level || this.level.width === undefined) return; // Bảo vệ
-        var r = this.level.width - 640;
-        if (r < 0) r = 0; 
-        var w = (this.x <= 210) ? 0 : ((this.x >= this.level.width - 230) ? r : r / (this.level.width - 440) * (this.x - 210));     
-        this.level.setParallax(w);
-    },
-    input: function(keys) {
-        this.fast = keys.accelerate;
-        this.crouching = keys.down;
-        if(!this.crouching || !this.onground) { // Bỏ crouching nếu đang nhảy
-             this.crouching = false;
-            if(this.onground && keys.up) this.jump();
-            if(keys.accelerate && this.marioState === mario_states.fire) this.shoot();
-            if(keys.right || keys.left) this.walk(keys.left, keys.accelerate);
-            else this.vx = 0;
-        }
-    },
-    victory: function() {
-        if (this.level.nextCycles > 0) return; 
-        this.level.playMusic('success');
-        this.clearFrames();
-        this.view.show();
-        this.setImage(images.sprites, this.state === size_states.small ? 241 : 161, 81);
-        this.level.next(); 
-    },
-    shoot: function() {
-        if(!this.cooldown) {
-            this.cooldown = constants.cooldown;
-            this.level.playSound('shoot');
-            new Bullet(this);
-        }
-    },
-    setVelocity: function(vx, vy) {
-        if(this.crouching && this.onground) { // Chỉ ngồi khi đang trên mặt đất
-            vx = 0;
-            this.crouch();
-        } else {
-            if(this.onground && vx > 0) this.walkRight();
-            else if(this.onground && vx < 0) this.walkLeft();
-            else this.stand();
-        }
-        this._super(vx, vy);
-    },
-    blink: function(times) {
-        this.blinking = Math.max(2 * times * constants.blinkfactor, this.blinking || 0);
-    },
-    invincible: function() {
-        this.level.playMusic('invincibility');
-        this.deadly = Math.floor(constants.invincible / constants.interval);
-        this.invulnerable = this.deadly;
-        this.blink(Math.ceil(this.deadly / (2 * constants.blinkfactor)));
-    },
-    grow: function() {
-        if(this.state === size_states.small) {
-            this.level.playSound('grow');
-            this.setState(size_states.big);
-            this.blink(3);
-        }
-    },
-    shooter: function() {
-        if(this.state === size_states.small) this.grow();
-        else this.level.playSound('grow');
-        this.setMarioState(mario_states.fire);
-    },
-    walk: function(reverse, fast) {
-        this.vx = constants.walking_v * (fast ? 2 : 1) * (reverse ? - 1 : 1);
-    },
-    walkRight: function() {
-        if(this.state === size_states.small) {
-            if(!this.setupFrames(8, 2, true, 'WalkRightSmall')) this.setImage(images.sprites, 0, 0);
-        } else {
-            if(!this.setupFrames(9, 2, true, 'WalkRightBig')) this.setImage(images.sprites, 0, 243);
-        }
-    },
-    walkLeft: function() {
-        if(this.state === size_states.small) {
-            if(!this.setupFrames(8, 2, false, 'WalkLeftSmall')) this.setImage(images.sprites, 80, 81);
-        } else {
-            if(!this.setupFrames(9, 2, false, 'WalkLeftBig')) this.setImage(images.sprites, 81, 162);
-        }
-    },
-    stand: function() {
-        var coords = this.standSprites[this.state - 1][this.direction === directions.left ? 0 : 1][this.onground ? 0 : 1];
-        this.setImage(images.sprites, coords.x, coords.y);
-        this.clearFrames();
-    },
-    crouch: function() {
-        var coords = this.crouchSprites[this.state - 1][this.direction === directions.left ? 0 : 1];
-        this.setImage(images.sprites, coords.x, coords.y);
-        this.clearFrames();
-    },
-    jump: function() {
-        this.level.playSound('jump');
-        this.vy = constants.jumping_v;
-    },
-    move: function() {
-        this.input(keys);       
-        this._super();
-    },
-    addCoin: function() { this.setCoins(this.coins + 1); },
-    playFrame: function() {     
-        if(this.blinking) {
-            if(this.blinking % constants.blinkfactor === 0) this.view.toggle();
-            this.blinking--;
-        } else if (this.view && !this.dead) { 
-             this.view.show();
-        }
-        if(this.cooldown) this.cooldown--;
-        if(this.deadly) this.deadly--;
-        if(this.invulnerable) this.invulnerable--;
-        this._super();
-    },
-    setCoins: function(coins) {
-        this.coins = coins;
-        if(this.coins >= constants.max_coins) {
-            this.addLife()
-            this.coins -= constants.max_coins;
-        }
-        $('#coinNumber').text(this.coins);
-    },
-    addLife: function() {
-        this.level.playSound('liveupgrade');
-        this.setLifes(this.lifes + 1);
-    },
-    setLifes : function(lifes) {
-        this.lifes = lifes;
-        $('#liveNumber').text(this.lifes);
-    },
-    death: function() {
-        if(this.deathBeginWait > 0) {
-            this.deathBeginWait--;
-            return true; 
-        }
-        if(this.deathEndWait > 0) {
-             this.deathEndWait--;
-             return (this.deathEndWait > 0); 
-        }
-        this.view.css({ 'bottom' : (this.deathDir > 0 ? '+' : '-') + '=' + (this.deathDir > 0 ? this.deathStepUp : this.deathStepDown) + 'px' });
-        this.deathCount += this.deathDir;
-        
-        if(this.deathCount === this.deathFrames)
-            this.deathDir = -1; 
-        else if(this.deathCount === 0) { 
-            this.deathEndWait = Math.floor(1000 / constants.interval); 
-            this.view.hide(); 
-        }
-        return true; 
-    },
-    die: function() {
-        if (this.dead) return; 
-        console.log("Mario die() called");
-        this.setMarioState(mario_states.normal);
-        this.deathStepDown = Math.ceil(240 / (this.deathFrames || 1));
-        this.setupFrames(9, 2, false, 'MarioDeath');
-        this.setImage(images.sprites, 81, 324);
-        this.level.playMusic('die');
-        this._super(); // Đặt this.dead = true
-    },
-    hurt: function(from) {
-        if (this.deadly > 0) { 
-            if (from && typeof from.die === 'function') { from.die(); }
-            return; 
-        } 
-        if (this.invulnerable > 0) { return; } 
-
-        if (this.state === size_states.small) {
-            // TRỪ MẠNG
-            this.setLifes(this.lifes - 1); 
-            this.die(); // Kích hoạt trạng thái/hoạt ảnh chết
-            // Level.tick() sẽ bắt this.dead và gọi Level.reload()
-        } else {
-            // Bị thu nhỏ
-            this.invulnerable = Math.floor(constants.invulnerable / constants.interval);
-            this.blink(Math.ceil(this.invulnerable / (2 * constants.blinkfactor)));
-            this.setState(size_states.small); 
-            this.setMarioState(mario_states.normal); // Mất trạng thái lửa
-            this.level.playSound('hurt');               
-        }
-    },
-}, 'mario');
-
-/*
- * -------------------------------------------
- * CÁC LỚP ENEMY (Giữ nguyên)
- * -------------------------------------------
- */
-var Enemy = Figure.extend({
-    init: function(x, y, level) {
-        this._super(x, y, level);
-        this.speed = 0;
-    },
-    hide: function() {
-        this.invisible = true;
-        this.view.hide();
-    },
-    show: function() {  
-        this.invisible = false;
-        this.view.show();
-    },
-    move: function() {
-        if(!this.invisible) {
-            this._super();
-            if(this.vx === 0) {
-                var s = this.speed; // Sửa lỗi: không dùng Math.sign
-                this.setVelocity(this.direction === directions.right ? -s : s, this.vy);
-            }
-        }
-    },
-    collides: function(is, ie, js, je, blocking) {
-        // Kiểm tra xem có bị rơi khỏi rìa không
-        if(this.j + 1 < this.level.getGridHeight()) {
-            for(var i = is; i <= ie; i++) {
-                if(i < 0 || i >= this.level.getGridWidth())
-                    return true; // Rơi ra biên
-                var obj = this.level.obstacles[i][this.j + 1];
-                if(!obj || (obj.blocking & ground_blocking.top) !== ground_blocking.top)
-                    return true; // Không có đất -> rơi
-            }
-        }
-        return this._super(is, ie, js, je, blocking);
-    },
-    setSpeed: function(v) {
-        this.speed = v;
-        this.setVelocity(-v, 0);
-    },
-    hurt: function(from) {
-        this.die();
-    },
-    hit: function(opponent) {
-        if(this.invisible || this.dead) return; // Thêm kiểm tra dead
-            
-        if(opponent instanceof Mario) {
-            // Mario nhảy lên đầu
-            if(opponent.vy < 0 && opponent.y - opponent.vy >= this.y + (this.state * 32) - 16) { // Nới lỏng 16px
-                opponent.setVelocity(opponent.vx, constants.bounce);
-                this.hurt(opponent);
-            } else {
-                opponent.hurt(this);
-            }
-        }
-    },
-});
-
-var Gumpa = Enemy.extend({
-    init: function(x, y, level) {
-        this._super(x, y, level);
-        this.setSize(34, 32);
-        this.setSpeed(constants.ballmonster_v);
-        this.death_mode = death_modes.normal;
-        this.deathCount = 0;
-    },
-    setVelocity: function(vx, vy) {
-        this._super(vx, vy);
-        if(this.direction === directions.left) {
-            if(!this.setupFrames(6, 2, false, 'LeftWalk'))
-                this.setImage(images.enemies, 34, 188);
-        } else {
-            if(!this.setupFrames(6, 2, true, 'RightWalk'))
-                this.setImage(images.enemies, 0, 228);
-        }
-    },
-    death: function() {
-        if(this.death_mode === death_modes.normal)
-            return --this.deathCount > 0; // Sửa lại
-        
-        this.view.css({ 'bottom' : (this.deathDir > 0 ? '+' : '-') + '=' + this.deathStep + 'px' });
-        this.deathCount += this.deathDir;
-        
-        if(this.deathCount === this.deathFrames)
-            this.deathDir = -1;
-        else if(this.deathCount === 0)
-            return false;
-            
-        return true;
-    },
-    die: function() {
-        this.clearFrames();
-        if(this.death_mode === death_modes.normal) {
-            this.level.playSound('enemy_die');
-            this.setImage(images.enemies, 102, 228);
-            this.deathCount = Math.ceil(600 / constants.interval);
-        } else if(this.death_mode === death_modes.shell) {
-            this.level.playSound('shell');
-            this.setImage(images.enemies, 68, this.direction === directions.right ? 228 : 188);
-            this.deathFrames = Math.floor(250 / constants.interval);
-            this.deathDir = 1;
-            this.deathStep = Math.ceil(150 / this.deathFrames);
-        }
-        this._super();
-    },
-}, 'ballmonster');
-
-var TurtleShell = Enemy.extend({
-    init: function(x, y, level) {
-        this._super(x, y, level);
-        this.setSize(34, 32);
-        this.speed = 0;
-        this.setImage(images.enemies, 0, 494);
-        this.hide(); // Ẩn ban đầu
-    },
-    activate: function(x, y) {
-        this.setupFrames(6, 4, false, 'ShellSpin');
-        this.setPosition(x, y);
-        this.show();
-    },
-    takeBack: function(where) {
-        if(where.setShell(this))
-            this.clearFrames();
-    },
-    hit: function(opponent) {
-        if(this.invisible || this.dead) return;
-            
-        if(this.vx) { // Nếu đang trượt
-            if(this.idle)
-                this.idle--;
-            else if(opponent instanceof Mario)
-                opponent.hurt(this);
-            else if (opponent instanceof Enemy) { // Thêm: Chỉ giết Enemy
-                opponent.death_mode = death_modes.shell;
-                opponent.die();
-            }
-        } else { // Nếu đang đứng yên
-            if(opponent instanceof Mario) {
-                this.setSpeed(opponent.direction === directions.right ? constants.shell_v : -constants.shell_v); // Sửa: hướng
-                opponent.setVelocity(opponent.vx, constants.bounce);
-                this.idle = 2;
-            } else if(opponent instanceof GreenTurtle && opponent.state === size_states.small)
-                this.takeBack(opponent);
-        }
-    },
-    collides: function(is, ie, js, je, blocking) { 
-        // Va chạm với mọi vật cản (khác với Enemy)
-        if(is < 0 || ie >= this.level.getGridWidth())
-            return true;
-        if(js < 0 || je >= this.level.getGridHeight())
-            return false;
-            
-        for(var i = is; i <= ie; i++) {
-            for(var j = je; j >= js; j--) {
-                var obj = this.level.obstacles[i][j];
-                if(obj && ((obj.blocking & blocking) === blocking))
-                    return true;
-            }
-        }
-        return false;
-    },
-    // Ghi đè setSpeed
-    setSpeed: function(v) {
-         this.speed = v;
-         this.setVelocity(v, 0); // Vận tốc là v, không phải -v
-    }
-}, 'shell');
-
-var GreenTurtle = Enemy.extend({
-    init: function(x, y, level) {
-        this.walkSprites = [
-            [{ x : 34, y : 382 },{ x : 0, y : 437 }],
-            [{ x : 34, y : 266 },{ x : 0, y : 325 }]
-        ];
-        this._super(x, y, level);
-        this.wait = 0;
-        this.deathMode = death_modes.normal;
-        this.deathFrames = Math.floor(250 / constants.interval);
-        this.deathStepUp = Math.ceil(150 / this.deathFrames);
-        this.deathStepDown = Math.ceil(182 / this.deathFrames);
-        this.deathDir = 1;
-        this.deathCount = 0;
-        this.setSize(34, 54);
-        
-        // Tạo shell mới và gán vào this.shell
-        var shell = new TurtleShell(x, y, level);
-        this.setShell(shell);
-    },
-    setShell: function(shell) {
-        if(this.shell || this.wait)
-            return false;
-            
-        this.shell = shell;
-        shell.hide();
-        this.setState(size_states.big);
-        return true;
-    },
-    setState: function(state) {
-        this._super(state);
-        
-        if(state === size_states.big)
-            this.setSpeed(constants.big_turtle_v);
-        else
-            this.setSpeed(constants.small_turtle_v);
-    },
-    setVelocity: function(vx, vy) {
-        this._super(vx, vy);
-        var rewind = this.direction === directions.right;
-        var coords = this.walkSprites[this.state - 1][rewind ? 1 : 0];
-        var label = Math.sign(vx) + '-' + this.state;
-        
-        if(!this.setupFrames(6, 2, rewind, label))
-            this.setImage(images.enemies, coords.x, coords.y);
-    },
-    die: function() {
-        this._super();
-        this.clearFrames();
-        
-        if(this.deathMode === death_modes.normal) {
-            this.deathFrames = Math.floor(600 / constants.interval);
-            this.setImage(images.enemies, 102, 437);
-        } else if(this.deathMode === death_modes.shell) {
-            this.level.playSound('shell');
-            this.setImage(images.enemies, 68, (this.state === size_states.small ? (this.direction === directions.right ? 437 : 382) : 325));
-        }
-    },
-    death: function() {
-        if(this.deathMode === death_modes.normal)
-            return --this.deathFrames > 0;
-            
-        this.view.css({ 'bottom' : (this.deathDir > 0 ? '+' : '-') + '=' + (this.deathDir > 0 ? this.deathStepUp : this.deathStepDown) + 'px' });
-        this.deathCount += this.deathDir;
-        
-        if(this.deathCount === this.deathFrames)
-            this.deathDir = -1;
-        else if(this.deathCount === 0)
-            return false;
-            
-        return true;
-    },
-    move: function() {
-        if(this.wait)
-            this.wait--;
-            
-        this._super();
-    },
-    hurt: function(opponent) {  
-        this.level.playSound('enemy_die');
-        
-        if(this.state === size_states.small)
-            return this.die();
-        
-        this.wait = constants.shell_wait
-        this.setState(size_states.small);
-        if (this.shell) { // Kiểm tra shell tồn tại
-             this.shell.activate(this.x, this.y);
-             this.shell = undefined; // Bỏ tham chiếu
-        }
-    },
-}, 'greenturtle');
-
-var SpikedTurtle = Enemy.extend({
-    init: function(x, y, level) {
-        this._super(x, y, level);
-        this.setSize(34, 32);
-        this.setSpeed(constants.spiked_turtle_v);
-        this.deathFrames = Math.floor(250 / constants.interval);
-        this.deathStepUp = Math.ceil(150 / this.deathFrames);
-        this.deathStepDown = Math.ceil(182 / this.deathFrames);
-        this.deathDir = 1;
-        this.deathCount = 0;
-    },
-    setVelocity: function(vx, vy) {
-        this._super(vx, vy);
-        
-        if(this.direction === directions.left) {
-            if(!this.setupFrames(4, 2, true, 'LeftWalk'))
-                this.setImage(images.enemies, 0, 106);
-        } else {
-            if(!this.setupFrames(6, 2, false, 'RightWalk'))
-                this.setImage(images.enemies, 34, 147);
-        }
-    },
-    death: function() {
-        this.view.css({ 'bottom' : (this.deathDir > 0 ? '+' : '-') + '=' + (this.deathDir > 0 ? this.deathStepUp : this.deathStepDown) + 'px' });
-        this.deathCount += this.deathDir;
-        
-        if(this.deathCount === this.deathFrames)
-            this.deathDir = -1;
-        else if(this.deathCount === 0)
-            return false;
-            
-        return true;
-    },
-    die: function() {
-        this.level.playSound('shell');
-        this.clearFrames();
-        this._super();
-        this.setImage(images.enemies, 68, this.direction === directions.left ? 106 : 147);
-    },
-    hit: function(opponent) {
-        if(this.invisible || this.dead) return;
-            
-        if(opponent instanceof Mario) {
-            opponent.hurt(this); // Rùa gai luôn làm Mario bị thương
-        }
-    },
-}, 'spikedturtle');
-
-var Plant = Enemy.extend({
-    init: function(x, y, level) {
-        this._super(x, y, level);
-        this.setSize(34, 42);
-        this.setupFrames(5, 2, true);
-        this.setImage(images.enemies, 0, 3);
-    },
-    setVelocity: function(vx, vy) {
-        this._super(0, 0); // Cây tĩnh không di chuyển ngang
-    },
-    die: function() {
-        this.level.playSound('shell');
-        this.clearFrames();
-        this._super();
-    },
-    hit: function(opponent) {
-        if(this.invisible || this.dead) return;
-            
-        if(opponent instanceof Mario) {
-            opponent.hurt(this);
-        }
-    },
-});
-
-var StaticPlant = Plant.extend({
-    init: function(x, y, level) {
-        this._super(x, y, level);
-        this.deathFrames = Math.floor(250 / constants.interval);
-        this.deathStepUp = Math.ceil(100 / this.deathFrames);
-        this.deathStepDown = Math.ceil(132 / this.deathFrames);
-        this.deathDir = 1;
-        this.deathCount = 0;
-    },
-    die: function() {
-        this._super();
-        this.setImage(images.enemies, 68, 3);
-    },
-    death: function() {
-        this.view.css({ 'bottom' : (this.deathDir > 0 ? '+' : '-') + '=' + (this.deathDir > 0 ? this.deathStepUp : this.deathStepDown) + 'px' });
-        this.deathCount += this.deathDir;
-        
-        if(this.deathCount === this.deathFrames)
-            this.deathDir = -1;
-        else if(this.deathCount === 0)
-            return false;
-            
-        return true;
-    },
-}, 'staticplant');
-
-var PipePlant = Plant.extend({
-    init: function(x, y, level) {
-        this.bottom = y - 48;
-        this.top = y - 6;
-        this._super(x + 16, y - 6, level); // Đặt vị trí ban đầu
-        this.setDirection(directions.down);
-        this.setImage(images.enemies, 0, 56);
-        this.deathFrames = Math.floor(250 / constants.interval);
-        this.deathFramesExtended = 6;
-        this.deathFramesExtendedActive = false;
-        this.deathStep = Math.ceil(100 / this.deathFrames);
-        this.deathDir = 1;
-        this.deathCount = 0;
-        this.view.css('z-index', 95);
-    },
-    setDirection: function(dir) {
-        this.direction = dir;
-    },
-    setPosition: function(x, y) {
-        if(y === this.bottom || y === this.top) {
-            this.minimum = constants.pipeplant_count;
-            this.setDirection(this.direction === directions.up ? directions.down : directions.up);
-        }
-        this._super(x, y);
-    },
-    blocked: function() {
-        if(this.y === this.bottom) {
-            var state = false;
-            // Tạm thời di chuyển lên để kiểm tra va chạm
-            this.y += 48; 
-            for(var i = this.level.figures.length; i--; ) {
-                if(this.level.figures[i] != this && q2q(this.level.figures[i], this)) {
-                    state = true;
-                    break;
-                }
-            }
-            this.y -= 48; // Trả lại vị trí
-            return state;
-        }
-        return false;
-    },
-    move: function() {
-        if(this.minimum === 0) {
-            if(!this.blocked())
-                this.setPosition(this.x, this.y - (this.direction - 3) * constants.pipeplant_v);
-        } else
-            this.minimum--;
-    },
-    die: function() {       
-        this._super();
-        this.setImage(images.enemies, 68, 56);
-    },
-    death: function() {
-        if(this.deathFramesExtendedActive) {
-            this.setPosition(this.x, this.y - 8);
-            return --this.deathFramesExtended > 0;
-        }
-        
-        this.view.css({ 'bottom' : (this.deathDir > 0 ? '+' : '-') + '=' + this.deathStep + 'px' });
-        this.deathCount += this.deathDir;
-        
-        if(this.deathCount === this.deathFrames)
-            this.deathDir = -1;
-        else if(this.deathCount === 0)
-            this.deathFramesExtendedActive = true;
-            
-        return true;
-    },
-}, 'pipeplant');
-
-
-/*
- * -------------------------------------------
- * HÀM SCALE GAME
- * -------------------------------------------
- */
-function scaleGame() {
-    const gameContainer = document.getElementById('game');
-    if (!gameContainer) { return; }
-
-    const winWidth = window.innerWidth;
-    const winHeight = window.innerHeight;
-
-    // Lấy kích thước gốc từ hằng số đã sửa (640x480)
-    const baseWidth = GAME_WIDTH;
-    const baseHeight = GAME_HEIGHT; 
-
-    // Tính toán tỉ lệ tối đa (để vừa màn hình)
-    const scaleX = winWidth / baseWidth;
-    const scaleY = winHeight / baseHeight;
-    
-    // Chọn tỉ lệ nhỏ nhất để game luôn nằm trọn trong màn hình (contain)
-    let scale = Math.min(scaleX, scaleY); 
-
-    // ======================================
-    // ✨ ĐIỀU CHỈNH TỰ ĐỘNG THEO Ý BẠN: ✨
-    // ======================================
-    
-    // 1. Tự giới hạn kích thước phóng to trên PC (Màn hình lớn):
-    // Giả sử bạn không muốn game to hơn 2 lần kích thước gốc (640*2 = 1280px)
-    const MAX_SCALE = 2.0; 
-    scale = Math.min(scale, MAX_SCALE);
-    
-    // 2. Ép buộc tỉ lệ tối thiểu trên Mobile (giữ cho game không quá nhỏ)
-    // scale = Math.max(scale, 1.5); // Nếu bạn muốn nó ít nhất là 1.5 lần
-
-    // Áp dụng scale
-    gameContainer.style.transform = `scale(${scale})`;
-    
-    // Căn giữa game sau khi scale (Logic này cần dùng baseWidth/Height)
-    const marginLeft = (winWidth - (baseWidth * scale)) / 2;
-    const marginTop = (winHeight - (baseHeight * scale)) / 2;
-    gameContainer.style.marginLeft = `${marginLeft}px`;
-    gameContainer.style.marginTop = `${marginTop}px`;
-}
-// Gắn sự kiện scale
-window.addEventListener('load', scaleGame);
-window.addEventListener('resize', scaleGame);
-
-
-/*
- * -------------------------------------------
- * KHỞI TẠO GAME (SẼ ĐƯỢC GỌI TỪ index.html)
- * -------------------------------------------
- */
-function initGame() {
-     console.log("Initializing Game...");
-     if (window.level && window.level.loop) {
-          window.level.pause(); 
-          console.log("Paused existing game loop.");
-     }
-     // Tạo đối tượng Level và gán vào biến toàn cục 'level'
-     window.level = new Level('world'); 
-     if (typeof definedLevels !== 'undefined' && definedLevels.length > 0) {
-          level.load(definedLevels[0]); // Tải màn chơi đầu tiên
-          level.start(); // Bắt đầu game loop
-          keys.bind(); // Kích hoạt input
-          console.log("Game initialized and started level 0.");
-     } else {
-          console.error("definedLevels is not defined or empty! Cannot load level.");
-          alert("Lỗi: Không thể tải dữ liệu màn chơi!");
-     }
-}
-
