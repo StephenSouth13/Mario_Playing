@@ -6,7 +6,7 @@
 
 const gameQuestions = [
     // -----------------------------------------------------
-    // --- LEVEL 1: Nhận diện tin nhắn & đường link lừa đảo ---
+    // --- LEVEL 1: Nhận diện tin nhắn & đường link lừa đảo (Q0 - Q3) ---
     // -----------------------------------------------------
     {
         question: "Bạn nhận được tin nhắn với đường link “http://gift-bank.vip” thông báo trúng thưởng 5 triệu đồng. Hành động nào là an toàn nhất?",
@@ -54,7 +54,7 @@ const gameQuestions = [
     },
 
     // ---------------------------------------------
-    // --- LEVEL 2: Lừa đảo tài chính & đầu tư ---
+    // --- LEVEL 2: Lừa đảo tài chính & đầu tư (Q4 - Q7) ---
     // ---------------------------------------------
     {
         question: "Một dự án gửi bạn “Hợp đồng đầu tư online” hứa lợi nhuận 60%/tháng, yêu cầu chuyển tiền trong 1 giờ. Dấu hiệu nào cho thấy đây là lừa đảo?",
@@ -102,7 +102,7 @@ const gameQuestions = [
     },
 
     // -----------------------------------------------------
-    // --- LEVEL 3: Bảo mật cá nhân & Ứng phó tống tiền ---
+    // --- LEVEL 3: Bảo mật cá nhân & Ứng phó tống tiền (Q8 - Q11) ---
     // -----------------------------------------------------
     {
         question: "Kẻ xấu gửi tin nhắn: “Chuyển 100 triệu nếu không sẽ phát tán ảnh riêng tư của bạn”. Cách xử lý đúng là:",

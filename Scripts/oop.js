@@ -64,9 +64,7 @@ var reflection = {};
         // Cho phép lớp này được kế thừa tiếp
         Class.extend = arguments.callee;
         
-        // --- SỬA LỖI LOGIC ---
         // Đăng ký class vào reflection *SAU KHI* đã tạo xong
-        // (Đây là logic mà các file như main.js sẽ tự động gọi)
         if(ref_name) {
              reflection[ref_name] = Class;
              // console.log("Registered reflection:", ref_name); // Bỏ comment để debug
@@ -75,4 +73,3 @@ var reflection = {};
         return Class;
     };
 })();
-
