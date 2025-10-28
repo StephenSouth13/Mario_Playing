@@ -1,7 +1,7 @@
 ﻿/* =======================================
    PHẦN 0: CÀI ĐẶT CƠ BẢN & RESET
    ======================================== */
-
+/*D:\Game\Mario_Playing\Content\style.css */
 /* Import font chữ pixel retro (cho điểm số) */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 /* Import font chữ hiện đại, dễ đọc (cho UI) */
@@ -198,7 +198,7 @@ html, body {
 }
 
 #login-screen.input-error #login-container {
-     animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+    animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
 }
 
 @keyframes shake {
@@ -352,8 +352,8 @@ html, body {
 }
 
 #login-box button:active {
-     transform: translateY(2px); 
-     box-shadow: 0 2px 0 #004494, 0 4px 5px rgba(0,0,0,0.5); 
+    transform: translateY(2px); 
+    box-shadow: 0 2px 0 #004494, 0 4px 5px rgba(0,0,0,0.5); 
 }
 
 /* =======================================
@@ -466,7 +466,7 @@ html, body {
 }
 
 #btn-jump:active {
-     background: radial-gradient(circle at 60% 40%, rgba(255, 110, 110, 0.9) 0%, rgba(190, 60, 60, 0.95) 100%);
+    background: radial-gradient(circle at 60% 40%, rgba(255, 110, 110, 0.9) 0%, rgba(190, 60, 60, 0.95) 100%);
 }
 
 /* =======================================
@@ -565,11 +565,11 @@ html, body {
 }
 
 .quiz-option-btn span {
-     display: inline-block;
-     font-weight: 700; 
-     margin-right: 10px;
-     color: #888; 
-     transition: color 0.2s ease-out;
+    display: inline-block;
+    font-weight: 700; 
+    margin-right: 10px;
+    color: #888; 
+    transition: color 0.2s ease-out;
 }
 
 .quiz-option-btn:hover:not(:disabled) { 

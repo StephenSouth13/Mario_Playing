@@ -6,14 +6,20 @@
  * MODIFIED FOR "ESCAPE THE SCAM"
  * *****
  */
-
+//D:\Game\Mario_Playing\Scripts\main.js
 // === KHAI BÁO BIẾN TOÀN CỤC ===
 // Kích thước gốc của game (lấy từ CSS: #game)
+// Thay đổi giá trị này để khớp với kích thước Hiển thị thực tế 
+// Của khối #game trong CSS (640x480).
 const GAME_WIDTH = 640; 
 const GAME_HEIGHT = 480;
+// var level = null;
 // Biến toàn cục để chứa đối tượng game chính
 var level = null; 
-
+// THÔNG SỐ SPRITE CỦA UEH PLAYER 
+const PLAYER_WIDTH_SMALL = 32; 
+const PLAYER_HEIGHT_SMALL = 23; // <<< DÒNG CẦN CHÚ Ý NHẤT
+const PLAYER_HEIGHT_BIG = 64;
 /*
  * -------------------------------------------
  * BASE CLASS (Lớp cơ sở)
@@ -1243,7 +1249,7 @@ var Mario = Hero.extend({
         this.width = 80;
         this._super(x, y, level);
         this.blinking = 0;
-        this.setOffset(-24, 0);
+        this.setOffset(-24, -30);
         this.setSize(80, 80);
         this.cooldown = 0;
         this.setMarioState(mario_states.normal);
@@ -1896,14 +1902,36 @@ function scaleGame() {
 
     const winWidth = window.innerWidth;
     const winHeight = window.innerHeight;
-    const scaleX = winWidth / GAME_WIDTH;
-    const scaleY = winHeight / GAME_HEIGHT;
-    const scale = Math.min(scaleX, scaleY); 
 
+    // Lấy kích thước gốc từ hằng số đã sửa (640x480)
+    const baseWidth = GAME_WIDTH;
+    const baseHeight = GAME_HEIGHT; 
+
+    // Tính toán tỉ lệ tối đa (để vừa màn hình)
+    const scaleX = winWidth / baseWidth;
+    const scaleY = winHeight / baseHeight;
+    
+    // Chọn tỉ lệ nhỏ nhất để game luôn nằm trọn trong màn hình (contain)
+    let scale = Math.min(scaleX, scaleY); 
+
+    // ======================================
+    // ✨ ĐIỀU CHỈNH TỰ ĐỘNG THEO Ý BẠN: ✨
+    // ======================================
+    
+    // 1. Tự giới hạn kích thước phóng to trên PC (Màn hình lớn):
+    // Giả sử bạn không muốn game to hơn 2 lần kích thước gốc (640*2 = 1280px)
+    const MAX_SCALE = 2.0; 
+    scale = Math.min(scale, MAX_SCALE);
+    
+    // 2. Ép buộc tỉ lệ tối thiểu trên Mobile (giữ cho game không quá nhỏ)
+    // scale = Math.max(scale, 1.5); // Nếu bạn muốn nó ít nhất là 1.5 lần
+
+    // Áp dụng scale
     gameContainer.style.transform = `scale(${scale})`;
     
-     const marginLeft = (winWidth - (GAME_WIDTH * scale)) / 2;
-     const marginTop = (winHeight - (GAME_HEIGHT * scale)) / 2;
+    // Căn giữa game sau khi scale (Logic này cần dùng baseWidth/Height)
+    const marginLeft = (winWidth - (baseWidth * scale)) / 2;
+    const marginTop = (winHeight - (baseHeight * scale)) / 2;
     gameContainer.style.marginLeft = `${marginLeft}px`;
     gameContainer.style.marginTop = `${marginTop}px`;
 }

@@ -1,34 +1,69 @@
 ﻿<!doctype html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <!-- Meta viewport quan trọng cho responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escape The Scam</title>
-    <!-- Link tới file CSS -->
-    <link href="Content/style.css" rel="stylesheet" />
-    <!-- Favicon (đặt file favicon.png trong thư mục Content) -->
+    <title>Escape The Scam | UEH</title>
+    
+    <link href="Content/style.css" rel="stylesheet" /> 
+    
     <link rel="icon" type="image/png" href="Content/favicon.png"> 
+    
     <style>
         /* Chống lỗi mờ và lỗi thao tác trên mobile */
         body {
-            -webkit-user-select: none; /* Safari */
-            -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* IE10+/Edge */
-            user-select: none; /* Standard */
-            touch-action: manipulation; /* Giảm độ trễ click trên mobile */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
         }
-         #game {
-              image-rendering: -moz-crisp-edges; /* Firefox */
-              image-rendering: -webkit-crisp-edges; /* Webkit (Chrome, Safari) */
-              image-rendering: pixelated; /* Standard */
-              image-rendering: crisp-edges;
-         }
+        #game {
+             /* Các thuộc tính image-rendering đã được thêm vào style.css */
+             /* Giữ lại trong <style> nếu bạn muốn ưu tiên override style.css */
+             image-rendering: -moz-crisp-edges; 
+             image-rendering: -webkit-crisp-edges; 
+             image-rendering: pixelated; 
+             image-rendering: crisp-edges;
+        }
     </style>
 </head>
 <body>
 
-    <!-- PHẦN MỚI: GIAO DIỆN QUIZ POP-UP (Bị ẩn ban đầu) -->
+    <div id="login-screen">
+        <div id="login-container">
+            <div id="login-info" class="login-column">
+                <img id="ueh-logo" src="Content/logo/KQM.png" alt="Logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/ffffff?text=Logo+Error'">
+                <h3>Luật Chơi "Escape The Scam"</h3>
+                <ul id="game-rules">
+                    <li>Dùng ◀ ▶ / phím mũi tên để di chuyển.</li>
+                    <li>Dùng Ⓐ / phím Lên để nhảy.</li>
+                    <li>Dùng Ⓑ / phím Xuống để ngồi (khi đang lớn).</li>
+                    <li>Tránh 'Scammer' (kẻ thù).</li>
+                    <li>Húc vào hộp **[?]** để trả lời câu hỏi và nhận thưởng.</li>
+                    <li>Trả lời **sai** sẽ bị trừ **1 mạng**!</li>
+                </ul>
+            </div>
+            <div id="login-box" class="login-column">
+                <h2>BẮT ĐẦU HÀNH TRÌNH</h2>
+                <p>Vui lòng nhập thông tin (UEH Student)</p>
+                <input type="text" id="input-name" placeholder="Họ và tên..." autocomplete="off">
+                <input type="text" id="input-mssv" placeholder="MSSV..." autocomplete="off">
+                <button id="login-button">Vào Game</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game" class="hidden">
+        <div id="world"></div>
+        <div id="coinNumber" class="gauge">0</div>
+        <div id="coin" class="gaugeSprite"></div>
+        <div id="liveNumber" class="gauge">0</div>
+        <div id="live" class="gaugeSprite"></div>
+        <div id="playerName" class="gauge gauge-text"></div>
+        <div id="playerMSSV" class="gauge gauge-text"></div>
+    </div>
+
     <div id="quiz-overlay" class="hidden">
         <div id="quiz-box">
             <p id="quiz-question">Đây là câu hỏi?</p>
@@ -43,46 +78,6 @@
         </div>
     </div>
 
-    <!-- PHẦN 1: MÀN HÌNH ĐĂNG NHẬP (2 CỘT) -->
-    <div id="login-screen">
-        <div id="login-container">
-            <div id="login-info" class="login-column">
-                <!-- Đường dẫn logo (Bạn PHẢI đặt logo vào Content/logo/KQM.png) -->
-                <img id="ueh-logo" src="Content/logo/KQM.png" alt="Logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/ffffff?text=Logo+Error'">
-                <h3>Luật Chơi "Escape The Scam"</h3>
-                <ul id="game-rules">
-                    <li>Dùng ◀ ▶ / phím mũi tên để di chuyển.</li>
-                    <li>Dùng Ⓐ / phím Lên để nhảy.</li>
-                    <li>Dùng Ⓑ / phím Xuống để ngồi (khi đang lớn).</li>
-                    <li>Tránh 'Scammer' (kẻ thù).</li>
-                    <li>Húc vào hộp [?] để trả lời câu hỏi.</li>
-                    <li>Trả lời sai sẽ bị trừ 1 mạng!</li>
-                </ul>
-            </div>
-            <div id="login-box" class="login-column">
-                <h2>Vào Game</h2>
-                <p>Vui lòng nhập thông tin (UEH Student)</p>
-                <input type="text" id="input-name" placeholder="Họ và tên..." autocomplete="off">
-                <input type="text" id="input-mssv" placeholder="MSSV..." autocomplete="off">
-                <button id="login-button">Bắt đầu</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PHẦN 2: GAME (ẨN BAN ĐẦU) -->
-    <div id="game" class="hidden">
-        <div id="world"></div>
-        <!-- Giao diện thông số game -->
-        <div id="coinNumber" class="gauge">0</div>
-        <div id="coin" class="gaugeSprite"></div>
-        <div id="liveNumber" class="gauge">0</div>
-        <div id="live" class="gaugeSprite"></div>
-        <!-- Giao diện thông tin người chơi -->
-        <div id="playerName" class="gauge gauge-text"></div>
-        <div id="playerMSSV" class="gauge gauge-text"></div>
-    </div>
-
-    <!-- PHẦN 3: JOYSTICK (ẨN BAN ĐẦU) -->
     <div id="mobile-controls" class="hidden">
         <div id="dpad">
             <button id="btn-left">◀</button>
@@ -90,251 +85,281 @@
         </div>
         <div id="action-buttons">
             <button id="btn-jump">Ⓐ</button>
-            <button id="btn-down">Ⓑ</button> <!-- Nút ngồi -->
+            <button id="btn-down">Ⓑ</button>
+        </div>
+    </div>
+    
+    <div id="certificate-screen" class="hidden">
+        <div id="cert-box">
+            <h2>🎉 HOÀN THÀNH XUẤT SẮC! 🎉</h2>
+            <p>Xin chúc mừng bạn đã vượt qua tất cả các cạm bẫy lừa đảo và hoàn thành trò chơi!</p>
+            <p>Trường **Đại học Kinh tế TP. Hồ Chí Minh** xác nhận sinh viên:</p>
+            <div id="cert-name" class="cert-info">
+                <strong>Họ và tên</strong>
+            </div>
+            <div id="cert-mssv" class="cert-info">
+                <strong>MSSV</strong>
+            </div>
+            <p style="font-size: 1.1em; margin-top: 25px;">đã đạt được chứng nhận **"Chiến Binh Chống Lừa Đảo"**.</p>
+            <button id="replay-button" onclick="window.location.reload()">Chơi Lại</button>
         </div>
     </div>
 
-    <!-- AUDIO (Thay thế iframe) -->
-    <!-- Bạn PHẢI đặt file nhạc vào Content/audio/background-music.mp3 -->
     <audio id="game-music" loop>
-         <source src="Content/audio/background-music.mp3" type="audio/mpeg"> 
-         Trình duyệt của bạn không hỗ trợ âm thanh.
+        <source src="Content/audio/background-music.mp3" type="audio/mpeg"> 
+        Trình duyệt của bạn không hỗ trợ âm thanh.
     </audio>
 
-    <!-- === THỨ TỰ SCRIPT ĐÃ SỬA LẠI (CỰC KỲ QUAN TRỌNG) === -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="Scripts/jQuery.js"><\/script>')</script>
     
-    <!-- 1. OOP.js (Định nghĩa 'Class') -->
     <script src="Scripts/oop.js"></script> 
-    <!-- 2. Constants.js (Định nghĩa hằng số, đường dẫn) -->
     <script src="Scripts/constants.js"></script> 
-    <!-- 3. Questions.js (Định nghĩa 'gameQuestions') -->
     <script src="Scripts/questions.js"></script> 
     
-    <!-- 4. Main.js (Định nghĩa 'Level', 'Mario', 'QuestionBox'... CẦN CÓ 3 file trên) -->
     <script src="Scripts/main.js"></script> 
     
-    <!-- 5. Testlevels.js (Định nghĩa 'definedLevels', CẦN 'main.js' để biết 'questionbox' là gì) -->
     <script src="Scripts/testlevels.js"></script> 
-    <!-- 6. Keys.js (Định nghĩa 'keys') -->
     <script src="Scripts/keys.js"></script> 
-    <!-- ======================================================= -->
 
-    <!-- SCRIPT CHÍNH (Xử lý Login, Quiz, Joystick, Game Over) -->
     <script>
-    // --- Khai báo biến toàn cục cho game ---
-    var level = null; // Biến này sẽ được khởi tạo trong initGame
+        // --- Khai báo biến toàn cục (đã được load từ main.js) ---
+        var level = null; 
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- DOM Elements ---
-        const loginScreen = document.getElementById('login-screen');
-        const loginButton = document.getElementById('login-button');
-        const gameDiv = document.getElementById('game');
-        const gameMusic = document.getElementById('game-music'); 
-        const inputName = document.getElementById('input-name');
-        const inputMssv = document.getElementById('input-mssv');
-        const playerNameDiv = document.getElementById('playerName');
-        const playerMSSVDiv = document.getElementById('playerMSSV');
-        const controls = document.getElementById('mobile-controls');
-        
-        // Quiz DOM Elements
-        const quizOverlay = document.getElementById('quiz-overlay');
-        const quizQuestion = document.getElementById('quiz-question');
-        const quizOptionsDiv = document.getElementById('quiz-options');
-        const quizOptionBtns = quizOptionsDiv.getElementsByClassName('quiz-option-btn');
-        const quizExplanation = document.getElementById('quiz-explanation');
-        const quizContinueBtn = document.getElementById('quiz-continue-btn');
-
-        // Refs
-        let currentLevelRef = null; 
-        let currentMarioRef = null; 
-        let currentCorrectAnswerIndex = -1;
-        
-        // Touch Device Check
-        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
-        // --- Hàm khởi tạo Game (QUAN TRỌNG) ---
-        // (Hàm này phải được định nghĩa trong main.js)
-        if (typeof initGame !== 'function') {
-             console.error("Lỗi nghiêm trọng: hàm initGame() không được định nghĩa trong main.js!");
-             alert("Lỗi tải game! (initGame failed)");
-             return;
-        }
-
-        // --- Login Handler ---
-        loginButton.addEventListener('click', function() {
-            const name = inputName.value.trim();
-            const mssv = inputMssv.value.trim();
-            if (name === '' || mssv === '') {
-                loginScreen.classList.add('input-error');
-                setTimeout(() => { loginScreen.classList.remove('input-error'); }, 300);
-                return;
-            }
-            localStorage.setItem('playerName', name); localStorage.setItem('playerMSSV', mssv);
-            playerNameDiv.textContent = name; playerMSSVDiv.textContent = mssv;
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM Elements ---
+            const loginScreen = document.getElementById('login-screen');
+            const loginButton = document.getElementById('login-button');
+            const gameDiv = document.getElementById('game');
+            const gameMusic = document.getElementById('game-music'); 
+            const inputName = document.getElementById('input-name');
+            const inputMssv = document.getElementById('input-mssv');
+            const playerNameDiv = document.getElementById('playerName');
+            const playerMSSVDiv = document.getElementById('playerMSSV');
+            const controls = document.getElementById('mobile-controls');
             
-            loginScreen.style.opacity = '0'; 
-            setTimeout(() => {
-                 loginScreen.style.display = 'none'; 
-                 gameDiv.classList.remove('hidden'); 
-                 gameDiv.style.opacity = '1'; 
+            // Quiz DOM
+            const quizOverlay = document.getElementById('quiz-overlay');
+            const quizQuestion = document.getElementById('quiz-question');
+            const quizOptionsDiv = document.getElementById('quiz-options');
+            const quizOptionBtns = quizOptionsDiv.getElementsByClassName('quiz-option-btn');
+            const quizExplanation = document.getElementById('quiz-explanation');
+            const quizContinueBtn = document.getElementById('quiz-continue-btn');
+
+            // Game Refs (Sẽ được gán sau khi initGame)
+            let currentLevelRef = null; 
+            let currentMarioRef = null; 
+            let currentQuestionBoxRef = null; 
+            let currentCorrectAnswerIndex = -1;
+            
+            // Touch Device Check
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+            // --- Hàm Khởi tạo Game ---
+            // Gọi initGame() từ main.js
+            function startGameSession() {
+                 if (typeof initGame !== 'function') {
+                    console.error("Lỗi: initGame() không được định nghĩa.");
+                    alert("Lỗi tải game!");
+                    return;
+                 }
                  
-                 // Gọi hàm khởi tạo game CHỈ KHI ĐĂNG NHẬP THÀNH CÔNG
-                 initGame(); // Hàm này nằm trong main.js
-                 
-                 // Gán tham chiếu sau khi game khởi tạo
-                 currentLevelRef = window.level; // Lấy level từ biến toàn cục
+                 initGame(); 
+                 currentLevelRef = window.level; 
                  if (currentLevelRef) {
                      currentMarioRef = currentLevelRef.figures.find(fig => fig instanceof Mario);
                  }
-                 if (!currentMarioRef) { console.error("Mario instance not found after init!"); }
+                 if (!currentMarioRef) { console.error("Mario instance not found!"); }
                  
-                 // Phát nhạc nền
-                 gameMusic.play().catch(e => console.warn("Audio play failed:", e)); 
-
-                 if (isTouchDevice) {
-                     controls.classList.remove('hidden'); 
-                 }
+                 gameMusic.play().catch(e => console.warn("Audio play failed, requires user interaction.")); 
                  
-                 // Scale game (hàm này cũng phải ở trong main.js)
+                 if (isTouchDevice) { controls.classList.remove('hidden'); }
+                 
                  if (typeof scaleGame === 'function') {
                      scaleGame(); 
                      setTimeout(scaleGame, 50); 
                  } else {
-                      console.warn("scaleGame function not found in main.js.");
+                     console.warn("scaleGame function not found.");
                  }
-                 
-            }, 400); 
-        });
-
-        // --- Quiz Functions ---
-        window.showQuiz = function(questionIndex, questionBoxRef) {
-             if (typeof gameQuestions === 'undefined' || !gameQuestions) {
-                  console.error("gameQuestions array is not defined or loaded!");
-                  return; 
-             }
-            if (questionIndex < 0 || questionIndex >= gameQuestions.length) {
-                console.error("Invalid question index:", questionIndex);
-                hideQuiz(); return;
             }
-            currentQuestionBoxRef = questionBoxRef;
-            currentLevelRef = questionBoxRef.level; 
-            currentMarioRef = currentLevelRef.figures.find(fig => fig instanceof Mario); 
-            if (!currentMarioRef) { hideQuiz(); return; }
 
-            if (currentLevelRef) currentLevelRef.pause();
-            keys.reset(); keys.unbind(); 
+            // --- Login Handler ---
+            loginButton.addEventListener('click', function() {
+                const name = inputName.value.trim();
+                const mssv = inputMssv.value.trim();
+                if (name === '' || mssv === '') {
+                    loginScreen.classList.add('input-error');
+                    setTimeout(() => { loginScreen.classList.remove('input-error'); }, 300);
+                    return;
+                }
+                
+                // Lưu thông tin
+                localStorage.setItem('playerName', name); 
+                localStorage.setItem('playerMSSV', mssv);
+                playerNameDiv.textContent = name; 
+                playerMSSVDiv.textContent = mssv;
+                
+                // Fade out Login Screen
+                loginScreen.style.opacity = '0'; 
+                setTimeout(() => {
+                    loginScreen.classList.add('hidden'); 
+                    gameDiv.classList.remove('hidden'); 
+                    gameDiv.style.opacity = '1'; 
+                    startGameSession(); // Bắt đầu game
+                }, 400); 
+            });
 
-            const questionData = gameQuestions[questionIndex];
-            currentCorrectAnswerIndex = questionData.correct;
+            // --- Quiz Functions ---
+            window.showQuiz = function(questionIndex, questionBoxRef) {
+                if (typeof gameQuestions === 'undefined' || !gameQuestions) {
+                     console.error("gameQuestions array not loaded!"); return; 
+                }
+                if (questionIndex < 0 || questionIndex >= gameQuestions.length) {
+                    console.error("Invalid question index:", questionIndex);
+                    hideQuiz(); return;
+                }
+                
+                currentQuestionBoxRef = questionBoxRef;
+                currentLevelRef = questionBoxRef.level; 
+                currentMarioRef = currentLevelRef.figures.find(fig => fig instanceof Mario); 
 
-            quizQuestion.textContent = questionData.question;
-            quizExplanation.className = 'hidden'; 
-            quizExplanation.textContent = "Giải thích: " + questionData.explanation;
-            quizContinueBtn.className = 'hidden'; 
+                if (currentLevelRef) currentLevelRef.pause();
+                keys.reset(); keys.unbind(); 
 
-            for (let i = 0; i < quizOptionBtns.length; i++) {
-                if (i < questionData.options.length) {
-                    quizOptionBtns[i].innerHTML = `<span>${String.fromCharCode(65 + i)}.</span> ${questionData.options[i]}`; 
-                    quizOptionBtns[i].style.display = 'block';
-                    quizOptionBtns[i].disabled = false; 
-                    quizOptionBtns[i].className = 'quiz-option-btn'; 
-                    quizOptionBtns[i].onclick = () => handleAnswer(i); 
+                const questionData = gameQuestions[questionIndex];
+                currentCorrectAnswerIndex = questionData.correct;
+
+                quizQuestion.textContent = questionData.question;
+                quizExplanation.className = 'hidden'; 
+                quizExplanation.textContent = "Giải thích: " + questionData.explanation;
+                quizContinueBtn.classList.add('hidden'); 
+                
+                // Reset và điền Options
+                for (let i = 0; i < quizOptionBtns.length; i++) {
+                    if (i < questionData.options.length) {
+                        quizOptionBtns[i].innerHTML = `<span>${String.fromCharCode(65 + i)}.</span> ${questionData.options[i]}`; 
+                        quizOptionBtns[i].style.display = 'block';
+                        quizOptionBtns[i].disabled = false; 
+                        quizOptionBtns[i].className = 'quiz-option-btn'; 
+                        quizOptionBtns[i].onclick = () => handleAnswer(i); 
+                    } else {
+                        quizOptionBtns[i].style.display = 'none'; 
+                    }
+                }
+                quizOverlay.classList.remove('hidden'); 
+            }
+
+            function handleAnswer(selectedIndex) {
+                for (let btn of quizOptionBtns) { btn.disabled = true; }
+                const isCorrect = (selectedIndex === currentCorrectAnswerIndex);
+                quizOptionBtns[selectedIndex].classList.add(isCorrect ? 'correct' : 'incorrect');
+                quizExplanation.classList.remove('hidden');
+
+                if (isCorrect) {
+                    if(currentLevelRef) currentLevelRef.playSound('coin'); 
+                    quizContinueBtn.classList.remove('hidden'); 
                 } else {
-                    quizOptionBtns[i].style.display = 'none'; 
+                    // Trả lời sai
+                    quizOptionBtns[currentCorrectAnswerIndex].classList.add('correct'); 
+                    if (currentMarioRef && !currentMarioRef.dead) {
+                        currentMarioRef.hurt(null); // Trừ mạng/Thu nhỏ
+                        if (currentMarioRef.lifes < 0) { 
+                             // Mario chết, không cho thử lại, Game Over sẽ được Level.tick() xử lý
+                             setTimeout(() => {
+                                 // Cần gọi Game Over sau khi Mario.die() hoàn thành
+                                 if (currentLevelRef && !currentLevelRef.loop) {
+                                      window.handleGameOver(false); 
+                                 }
+                             }, 2000);
+                             return; 
+                        } 
+                    }
+                    // Cho thử lại sau 2s nếu còn mạng
+                    setTimeout(() => { 
+                        quizExplanation.classList.add('hidden'); 
+                        for (let btn of quizOptionBtns) {
+                             btn.disabled = false;
+                             btn.className = 'quiz-option-btn'; 
+                        }
+                    }, 2000); 
                 }
             }
-            quizOverlay.classList.remove('hidden'); 
-        }
 
-        function handleAnswer(selectedIndex) {
-            for (let btn of quizOptionBtns) { btn.disabled = true; }
-            const isCorrect = (selectedIndex === currentCorrectAnswerIndex);
-            quizOptionBtns[selectedIndex].classList.add(isCorrect ? 'correct' : 'incorrect');
-            quizExplanation.classList.remove('hidden');
-
-            if (isCorrect) {
-                if(currentLevelRef) currentLevelRef.playSound('coin'); 
-                quizContinueBtn.classList.remove('hidden'); 
-            } else {
-                quizOptionBtns[currentCorrectAnswerIndex].classList.add('correct'); 
-                if (currentMarioRef && !currentMarioRef.dead) {
-                     // Sửa: Gọi thẳng hàm 'hurt' của Mario
-                     currentMarioRef.hurt(null); 
-                     // Logic game over sẽ được xử lý tự động bởi Level.reload
-                     if(currentMarioRef.lifes < 0) { return; } 
+            window.hideQuiz = function() {
+                quizOverlay.classList.add('hidden');
+                if (currentLevelRef) {
+                    keys.bind(); 
+                    if (currentMarioRef && !currentMarioRef.dead && !currentLevelRef.loop) { 
+                        currentLevelRef.start(); 
+                    }
                 }
-                 setTimeout(() => { // Cho thử lại nếu sai
-                     quizExplanation.classList.add('hidden'); 
-                     for (let btn of quizOptionBtns) {
-                          btn.disabled = false;
-                          btn.className = 'quiz-option-btn'; 
+            }
+            quizContinueBtn.onclick = hideQuiz;
+
+            // --- Joystick (Giữ nguyên logic mô phỏng key) ---
+            function simulateKey(keyCode, eventType) {
+                 var event = new KeyboardEvent(eventType, {
+                     'keyCode': keyCode, 'which': keyCode,
+                     'bubbles': true, 'cancelable': true
+                 });
+                 document.dispatchEvent(event);
+            }
+            if (isTouchDevice) {
+                 var btnMap = {
+                     'btn-left': 37, 'btn-right': 39, 'btn-jump': 38, 'btn-down': 40
+                 };
+                 for (const [id, keyCode] of Object.entries(btnMap)) {
+                     const btn = document.getElementById(id);
+                     if (btn) {
+                         btn.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(keyCode, 'keydown'); }, { passive: false });
+                         btn.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(keyCode, 'keyup'); }, { passive: false });
                      }
-                 }, 2000); // Tăng thời gian chờ
+                 }
             }
-        }
-
-        window.hideQuiz = function() {
-            quizOverlay.classList.add('hidden');
-            if (currentLevelRef) {
-                keys.bind(); 
-                if (currentMarioRef && !currentMarioRef.dead && !currentLevelRef.loop) { 
-                     currentLevelRef.start(); 
-                }
-            }
-        }
-        quizContinueBtn.onclick = hideQuiz;
-
-        // --- Joystick ---
-        function simulateKey(keyCode, eventType) {
-             var event = new KeyboardEvent(eventType, {
-                 'keyCode': keyCode, 'which': keyCode,
-                 'bubbles': true, 'cancelable': true
-             });
-             document.dispatchEvent(event);
-        }
-        if (isTouchDevice) {
-             var btnLeft = document.getElementById('btn-left');
-             var btnRight = document.getElementById('btn-right');
-             var btnJump = document.getElementById('btn-jump');
-             var btnDown = document.getElementById('btn-down'); // Lấy nút Down
-
-             btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(37, 'keydown'); }, { passive: false });
-             btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(37, 'keyup'); }, { passive: false });
-             btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(39, 'keydown'); }, { passive: false });
-             btnRight.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(39, 'keyup'); }, { passive: false });
-             btnJump.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(38, 'keydown'); }, { passive: false }); // 38=Up
-             btnJump.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(38, 'keyup'); }, { passive: false });
-
-             // Thêm listener cho Nút Xuống (Ngồi)
-             if (btnDown) { 
-                 btnDown.addEventListener('touchstart', (e) => { e.preventDefault(); simulateKey(40, 'keydown'); }, { passive: false }); // 40 = Mũi tên xuống
-                 btnDown.addEventListener('touchend', (e) => { e.preventDefault(); simulateKey(40, 'keyup'); }, { passive: false });
-             }
-        }
-
-        // --- Game Over ---
-        window.handleGameOver = function() { 
-            console.log("GAME OVER triggered!");
-            if (!currentLevelRef && window.level) { currentLevelRef = window.level; } 
-            if (currentLevelRef && currentLevelRef.loop) {
-                 currentLevelRef.pause();
-                 console.log("Game loop paused for Game Over.");
-            }
-            keys.reset(); keys.unbind();
-            gameMusic.pause(); gameMusic.currentTime = 0; 
-            quizOverlay.classList.add('hidden');
-            controls.classList.add('hidden'); 
             
-             setTimeout(() => { 
-                alert("GAME OVER! Bạn đã hết mạng. Nhấn OK để chơi lại.");
-                 window.location.reload(); 
-            }, 100); 
-        }
-        
-    }); // End DOMContentLoaded
+            // --- Game Over/Victory Logic (Gọi từ main.js) ---
+            // Khi Mario hết mạng
+            window.handleGameOver = function(isVictory = false) { 
+                console.log("Game End triggered. Is Victory:", isVictory);
+                
+                if (!currentLevelRef && window.level) { currentLevelRef = window.level; } 
+                if (currentLevelRef && currentLevelRef.loop) { currentLevelRef.pause(); }
+                
+                keys.reset(); keys.unbind();
+                gameMusic.pause(); gameMusic.currentTime = 0; 
+                quizOverlay.classList.add('hidden');
+                controls.classList.add('hidden'); 
+                gameDiv.style.opacity = '0';
+
+                setTimeout(() => { 
+                    gameDiv.classList.add('hidden');
+
+                    if (isVictory) {
+                        const certScreen = document.getElementById('certificate-screen');
+                        const certNameDiv = document.getElementById('cert-name');
+                        const certMssvDiv = document.getElementById('cert-mssv');
+                        
+                        const name = localStorage.getItem('playerName') || 'Sinh viên UEH';
+                        const mssv = localStorage.getItem('playerMSSV') || 'N/A';
+                        
+                        certNameDiv.innerHTML = `${name} <strong>Họ và tên</strong>`;
+                        certMssvDiv.innerHTML = `${mssv} <strong>MSSV</strong>`;
+
+                        certScreen.classList.remove('hidden');
+                        certScreen.style.opacity = '1';
+                    } else {
+                        alert("GAME OVER! Bạn đã hết mạng. Nhấn OK để chơi lại.");
+                        window.location.reload(); 
+                    }
+                }, 500); 
+            }
+            
+            // Khi hoàn thành màn cuối (gọi từ Level.nextLoad trong main.js)
+            window.handleGameVictory = function() {
+                 window.handleGameOver(true);
+            }
+            
+        }); // End DOMContentLoaded
     </script>
 </body>
 </html>
-
