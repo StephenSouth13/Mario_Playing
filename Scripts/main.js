@@ -139,41 +139,67 @@ var Level = Base.extend({
 		
 		this.start();
 	},
-	load: function(level) {
-		if(this.active) {
-			if(this.loop)
-				this.pause();
+	// Tìm hàm này trong file Scripts/main.js và thay thế bằng code dưới đây
 
-			this.reset();
-		}
-			
-		this.setPosition(0, 0);
-		this.setSize(level.width * 32, level.height * 32);
-		this.setImage(level.background);
-		this.raw = level;
-		this.id = level.id;
-		this.active = true;
-		var data = level.data;
-		
-		for(var i = 0; i < level.width; i++) {
-			var t = [];
-			
-			for(var j = 0; j < level.height; j++) {
-				t.push('');
-			}
-			
-			this.obstacles.push(t);
-		}
-		
-		for(var i = 0, width = data.length; i < width; i++) {
-			var col = data[i];
-			
-			for(var j = 0, height = col.length; j < height; j++) {
-				if(reflection[col[j]])
-					new (reflection[col[j]])(i * 32, (height - j - 1) * 32, this);
-			}
-		}
-	},
+load: function(level) {
+    if (this.active) {
+        if (this.loop)
+            this.pause();
+        this.reset();
+    }
+
+    this.setPosition(0, 0);
+    this.setSize(level.width * 32, level.height * 32);
+    this.setImage(level.background);
+    this.raw = level;
+    this.id = level.id;
+    this.active = true;
+    var data = level.data;
+
+    // --- Vòng lặp 1: Khởi tạo lưới obstacles ---
+    for (var i = 0; i < level.width; i++) {
+        var t = [];
+        for (var j = 0; j < level.height; j++) {
+            t.push('');
+        }
+        this.obstacles.push(t);
+    }
+
+    // --- Vòng lặp 2: Tạo đối tượng từ data ---
+    // Đặt biến đếm câu hỏi Ở ĐÂY (trước vòng lặp)
+    let questionCounter = 0; 
+
+    for (var i = 0, width = data.length; i < width; i++) {
+        var col = data[i];
+        for (var j = 0, height = col.length; j < height; j++) {
+            // Kiểm tra xem có tên định danh hợp lệ không
+            if (reflection[col[j]]) {
+                
+                // --- Tạo đối tượng (instance) ---
+                var instance = new (reflection[col[j]])(i * 32, (height - j - 1) * 32, this);
+
+                // === CHÈN CODE MỚI VÀO ĐÂY ===
+                // Kiểm tra xem đối tượng vừa tạo có phải là QuestionBox không
+                if (instance instanceof QuestionBox) {
+                    // Tính toán index câu hỏi 
+                    let qIndex = this.id; // Lấy ID màn chơi hiện tại
+
+                    // Kiểm tra index hợp lệ
+                    if (qIndex >= 0 && qIndex < gameQuestions.length) {
+                        instance.assignQuestion(qIndex); // Gán index cho QuestionBox
+                    } else {
+                        // Báo lỗi và dùng câu đầu tiên nếu hết câu hỏi
+                        console.warn(`Level ${this.id} needs QuestionBox, but question index ${qIndex} is out of bounds! Using question 0.`);
+                        instance.assignQuestion(0);
+                    }
+                    // questionCounter++; // Bỏ comment nếu muốn dùng biến đếm thay vì ID màn
+                }
+                // === KẾT THÚC CODE MỚI ===
+
+            } // Kết thúc if(reflection[col[j]])
+        } // Kết thúc vòng lặp j (hàng)
+    } // Kết thúc vòng lặp i (cột)
+}, // Kết thúc hàm load
 	next: function() {
 		this.nextCycles = Math.floor(7000 / constants.interval);
 	},
@@ -1904,95 +1930,52 @@ $(document).ready(function() {
 	keys.bind();
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
+ * -------------------------------------------
+ * QUESTIONBOX CLASS (MỚI)
+ * -------------------------------------------
+ */
+var QuestionBox = Item.extend({
+    // Hàm khởi tạo (constructor)
+    init: function(x, y, level) {
+        // Gọi hàm init của lớp cha (Item) với isBlocking = true
+        this._super(x, y, true, level); 
+        // Đặt hình ảnh ban đầu là hộp '?' nhấp nháy
+        this.setImage(images.objects, 96, 33); 
+        // Thiết lập hoạt ảnh nhấp nháy (8 fps, 4 frame, không tua lại)
+        this.setupFrames(8, 4, false); 
+        this.questionIndex = -1; // Index câu hỏi, sẽ được gán sau
+        this.isUsed = false;     // Trạng thái: chưa được sử dụng
+    },
+    // Hàm để gán index câu hỏi cho hộp này
+    assignQuestion: function(index) {
+        this.questionIndex = index;
+    },
+    // Hàm xử lý khi Mario tương tác với hộp
+    activate: function(from) {
+        // Chỉ kích hoạt khi:
+        // 1. Chưa được sử dụng (isUsed === false)
+        // 2. Không đang trong trạng thái nảy (isBouncing === false)
+        // 3. Người tương tác là Mario (from instanceof Mario)
+        if (!this.isUsed && !this.isBouncing && from instanceof Mario) {
+            this.bounce(); // Thực hiện hiệu ứng nảy
+            this.clearFrames(); // Dừng hoạt ảnh nhấp nháy
+            // Đổi hình ảnh thành hộp gạch nâu đã sử dụng
+            this.setImage(images.objects, 514, 194); 
+            this.isUsed = true; // Đánh dấu hộp này đã được sử dụng
+            this.level.playSound('mushroom'); // Tạm dùng âm thanh của Nấm
+
+            // Gọi hàm showQuiz (đã định nghĩa trong index.html)
+            // để hiển thị pop-up câu hỏi
+            if (typeof window.showQuiz === 'function') {
+                // Truyền index câu hỏi và tham chiếu đến chính hộp này
+                window.showQuiz(this.questionIndex, this); 
+            } else {
+                console.error("showQuiz function not found!"); // Báo lỗi nếu không tìm thấy hàm
+            }
+        }
+        // Gọi hàm activate của lớp cha (Item) để xử lý các logic khác (nếu có)
+        this._super(from); 
+    },
+    // Đặt tên định danh (ref_name) để reflection hoạt động
+}, 'questionbox');

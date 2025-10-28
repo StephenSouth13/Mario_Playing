@@ -5,7 +5,8 @@
  * mail@florian-rappl.de
  * *****
  */
-
+//D:\Game\Mario_Playing\Scripts\constants.js
+//1. constants.js - Hằng số và Cài đặt
 var AUDIOPATH = 'Content/audio/';
 var BASEPATH   = 'Content/';
 var DIV        = '<div />';

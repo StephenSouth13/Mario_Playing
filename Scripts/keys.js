@@ -5,7 +5,7 @@
  * mail@florian-rappl.de
  * *****
  */
-
+//D:\Game\Mario_Playing\Scripts\keys.js //2. keys.js - Xử lý Bàn phím
 var keys = {
 	bind : function() {
 		$(document).on('keydown', function(event) {	

@@ -1,43 +1,349 @@
-﻿@font-face {
-   font-family: 'SMB';
-   src: local('Super Mario Bros.'),
-        url('fonts/Super Mario Bros.ttf') format('truetype');
-   font-style: normal;
+﻿/* PHẦN 0: CSS GỐC CỦA GAME (ĐÃ SỬA #game ĐỂ RESPONSIVE) */
+
+@font-face {
+    font-family: 'SMB';
+    src: local('Super Mario Bros.'),
+         url('fonts/Super Mario Bros.ttf') format('truetype');
+    font-style: normal;
 }
 
-#game {
-	height: 480px; width: 640px; position: absolute; left: 50%; top: 50%;
-	margin-left: -321px; margin-top: -241px; border: 1px solid #ccc; overflow: hidden;
+/* Thêm vào đầu file: Căn giữa và làm nền */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #000; /* Nền đen bên ngoài game */
+    overflow: hidden; /* Giấu thanh cuộn */
+    
+    /* Dùng Flexbox để căn giữa #game */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+/* Đã sửa #game để scale responsive */
+#game {
+    height: 480px; width: 640px; 
+    position: relative; /* Đã thay đổi từ 'absolute' */
+    border: 1px solid #ccc; 
+    overflow: hidden;
+    transform-origin: top left; /* Thêm dòng này để scale từ góc */
+}
+
 #world { 
-	margin: 0; padding: 0; height: 100%; width: 100%; position: absolute;
-	bottom: 0; left: 0; z-index: 0;
+    margin: 0; padding: 0; height: 100%; width: 100%; position: absolute;
+    bottom: 0; left: 0; z-index: 0;
 }
 .gauge {
-	margin: 0; padding: 0; height: 50px; width: 70px; text-align: right; font-size: 2em;
-	font-weight: bold; position: absolute; top: 17px; right: 52px; z-index: 1000;
-	position: absolute; font-family: 'SMB';
+    margin: 0; padding: 0; height: 50px; width: 70px; text-align: right; font-size: 2em;
+    font-weight: bold; position: absolute; top: 17px; right: 52px; z-index: 1000;
+    position: absolute; 
+    font-family: 'SMB'; /* Giữ font gốc cho điểm số */
 }
 .gaugeSprite {
-	margin: 0; padding: 0; z-index: 1000; position: absolute;
+    margin: 0; padding: 0; z-index: 1000; position: absolute;
 }
 #coinNumber {
-	left: 0;
+    left: 0;
 }
 #liveNumber {
-	right: 52px;
+    right: 52px;
 }
 #coin {
-	height: 32px; width: 32px; background-image : url(mario-objects.png);
-	background-position: 0 0; top: 15px; left: 70px;
+    height: 32px; width: 32px; background-image : url(mario-objects.png);
+    background-position: 0 0; top: 15px; left: 70px;
 }
 #live {
-	height: 40px; width: 40px; background-image : url(mario-sprites.png);
-	background-position : 0 -430px; top: 12px; right: 8px;
+    height: 40px; width: 40px; background-image : url(mario-sprites.png);
+    background-position : 0 -430px; top: 12px; right: 8px;
 }
 .figure {
-	margin: 0; padding: 0; z-index: 99; position: absolute;
+    margin: 0; padding: 0; z-index: 99; position: absolute;
 }
 .matter {
-	margin: 0; padding: 0; z-index: 95; position: absolute; width: 32px; height: 32px;
+    margin: 0; padding: 0; z-index: 95; position: absolute; width: 32px; height: 32px;
+}
+
+/* =======================================
+   1. CSS CHO MÀN HÌNH ĐĂNG NHẬP (ĐÃ NÂNG CẤP)
+   =======================================
+*/
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+#login-screen {
+    font-family: 'Press Start 2P', cursive;
+    background: #000;
+    color: #0f0;
+    background-image: repeating-linear-gradient(
+        transparent 0,
+        rgba(0, 0, 0, 0.3) 2px,
+        transparent 4px
+    );
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Giữ căn giữa theo chiều dọc */
+    animation: fadeIn 1s ease-in-out;
+    padding: 20px; /* Thêm padding cho màn hình nhỏ */
+    box-sizing: border-box;
+    overflow-y: auto; /* Cho phép cuộn trên màn hình nhỏ */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* HỘP LỚN CHỨA 2 CỘT */
+#login-container {
+    display: flex;
+    flex-direction: row; /* 2 cột nằm ngang */
+    width: 100%;
+    max-width: 900px; /* Tăng chiều rộng tối đa */
+    background: rgba(0, 20, 0, 0.7);
+    border: 1px solid #0f0;
+    box-shadow: 0 0 20px #0f0, 0 0 30px #0f0 inset;
+    border-radius: 8px;
+    overflow: hidden; /* Để bo góc */
+}
+
+/* STYLE CHUNG CHO CẢ 2 CỘT */
+.login-column {
+    flex: 1; /* Mỗi cột chiếm 50% */
+    padding: 30px 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* CỘT 1: INFO (LOGO & LUẬT) */
+#login-info {
+    color: #0c0; /* Màu xanh lá nhạt */
+    text-align: left;
+    font-size: 0.8em;
+}
+
+#ueh-logo {
+    display: block;
+    max-width: 150px;
+    margin: 0 auto 20px auto; /* Tự căn giữa */
+    background: rgba(255,255,255,0.1); /* Nền mờ cho logo (nếu logo bị tối) */
+    border-radius: 4px;
+    padding: 10px;
+}
+
+#login-info h3 {
+    color: #0f0;
+    text-shadow: 0 0 10px #0f0;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+#game-rules {
+    list-style: none;
+    padding-left: 0;
+}
+
+#game-rules li {
+    position: relative;
+    padding-left: 25px; /* Khoảng cách cho icon đầu dòng */
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+/* Icon đầu dòng "cyber" */
+#game-rules li::before {
+    content: '▶';
+    color: #0f0;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* CỘT 2: FORM ĐĂNG NHẬP */
+#login-box {
+    text-align: center;
+    border-left: 1px solid rgba(0, 255, 0, 0.3); /* Đường kẻ ngăn cách */
+}
+
+#login-box h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    text-shadow: 0 0 10px #0f0;
+    margin-bottom: 15px;
+    color: #0f0;
+}
+
+#login-box p {
+    font-size: 0.7em;
+    color: #0c0;
+    margin-bottom: 30px;
+}
+
+#login-box input[type="text"] {
+    display: block;
+    width: 100%;
+    box-sizing: border-box; 
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #0f0;
+    background: #000;
+    color: #0f0;
+    border-radius: 4px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8em;
+    transition: all 0.3s;
+}
+
+#login-box input[type="text"]::placeholder {
+    color: #090;
+}
+
+#login-box input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 0 15px #0f0;
+    border-color: #fff;
+}
+
+#login-box button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 4px;
+    background: #0f0;
+    color: #000;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px #000;
+}
+
+#login-box button:hover {
+    background: #fff;
+    color: #0f0;
+    box-shadow: 0 0 20px #fff;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =======================================
+   2. CSS CHO THÔNG TIN NGƯỜI CHƠI (Giữ nguyên)
+   =======================================
+*/
+.gauge-text {
+    position: absolute;
+    z-index: 1000;
+    width: 400px;
+    left: 50%;
+    margin-left: -200px;
+    text-align: center;
+    color: white;
+    text-shadow: 2px 2px 4px #000;
+    right: auto;
+    font-weight: bold;
+    font-family: 'Press Start 2P', cursive;
+}
+
+#playerName {
+    top: 17px;
+    font-size: 1.2em;
+}
+
+#playerMSSV {
+    top: 45px;
+    font-size: 1.0em;
+}
+
+/* =======================================
+   3. CSS RESPONSIVE CHO MÀN HÌNH ĐĂNG NHẬP
+   (Khi màn hình nhỏ, 2 cột sẽ xếp chồng)
+   =======================================
+*/
+@media (max-width: 768px) {
+    #login-container {
+        flex-direction: column; /* Xếp chồng 2 cột */
+        max-width: 450px; /* Giống #login-box cũ */
+        width: 100%;
+    }
+
+    /* Bỏ đường viền bên trái, thay bằng đường viền bên trên */
+    #login-box {
+        border-left: none;
+        border-top: 1px solid rgba(0, 255, 0, 0.3);
+    }
+    
+    #login-info {
+        text-align: center; /* Căn giữa logo và h3 */
+    }
+    
+    #game-rules {
+        text-align: left; /* Giữ luật chơi căn trái cho dễ đọc */
+    }
+}
+
+
+/* =======================================
+   4. CSS CHO JOYSTICK (Giữ nguyên)
+   =======================================
+*/
+#mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 3000;
+    padding: 20px;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#dpad {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    opacity: 0.6;
+}
+
+#action-buttons {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    opacity: 0.6;
+}
+
+#mobile-controls button {
+    width: 70px;
+    height: 70px;
+    background: rgba(128, 128, 128, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    color: white;
+    font-size: 2.5em;
+    line-height: 65px;
+    text-align: center;
+    margin: 0 10px;
+}
+
+#btn-jump {
+    width: 85px;
+    height: 85px;
+    line-height: 80px;
+    background: rgba(255, 80, 80, 0.5);
+}
+
+#mobile-controls button:active {
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0.9;
 }
