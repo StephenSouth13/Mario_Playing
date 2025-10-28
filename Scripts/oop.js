@@ -1,65 +1,78 @@
+/*
+ * Simple JavaScript Inheritance
+ * By John Resig http://ejohn.org/
+ * MIT Licensed.
+ */
+
+// Biến reflection toàn cục
+// Sẽ được các file (như main.js) tự động điền vào
 var reflection = {};
 
-//http://ejohn.org/blog/simple-javascript-inheritance/
 (function(){
-	var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+    var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+    
+    // Lớp Class cơ sở (rỗng)
+    this.Class = function(){};
+    
+    // Hàm extend để tạo lớp con
+    Class.extend = function(prop, ref_name) {
+        var _super = this.prototype;
+        
+        // Khởi tạo một đối tượng prototype (không chạy hàm init)
+        initializing = true;
+        var prototype = new this();
+        initializing = false;
+        
+        // Sao chép các thuộc tính/phương thức mới vào prototype
+        for (var name in prop) {
+            // Kiểm tra nếu chúng ta đang ghi đè một hàm
+            // và hàm mới có gọi this._super
+            prototype[name] = typeof prop[name] == "function" && 
+                typeof _super[name] == "function" && fnTest.test(prop[name]) ?
+                (function(name, fn){
+                    return function() {
+                        var tmp = this._super;
+                        
+                        // Thêm một phương thức ._super() tạm thời
+                        this._super = _super[name];
+                        
+                        // Chạy phương thức mới
+                        var ret = fn.apply(this, arguments);        
+                        
+                        // Khôi phục lại this._super
+                        this._super = tmp;
+                        
+                        return ret;
+                    };
+                })(name, prop[name]) :
+                prop[name];
+        }
+        
+        // Hàm khởi tạo (constructor) thực sự của Lớp mới
+        function Class() {
+            // Chỉ chạy hàm init nếu chúng ta không đang ở chế độ initializing
+            if ( !initializing && this.init )
+                this.init.apply(this, arguments);
+        }
+        
+        // Gán prototype mới
+        Class.prototype = prototype;
+        
+        // Đặt lại con trỏ constructor
+        Class.prototype.constructor = Class;
 
-	// The base Class implementation (does nothing)
-	this.Class = function(){};
-   
-	// Create a new Class that inherits from this class
-	Class.extend = function(prop, ref_name) {
-		if(ref_name)
-			reflection[ref_name] = Class;
-			
-		var _super = this.prototype;
-
-		// Instantiate a base class (but only create the instance,
-		// don't run the init constructor)
-		initializing = true;
-		var prototype = new this();
-		initializing = false;
-		 
-		// Copy the properties over onto the new prototype
-		for (var name in prop) {
-		// Check if we're overwriting an existing function
-		prototype[name] = typeof prop[name] == "function" && 
-			typeof _super[name] == "function" && fnTest.test(prop[name]) ?
-			(function(name, fn) {
-				return function() {
-					var tmp = this._super;
-
-					// Add a new ._super() method that is the same method
-					// but on the super-class
-					this._super = _super[name];
-
-					// The method only need to be bound temporarily, so we
-					// remove it when we're done executing
-					var ret = fn.apply(this, arguments);        
-					this._super = tmp;
-
-					return ret;
-				};
-			})(name, prop[name]) :
-			prop[name];
-		}
-		 
-		// The dummy class constructor
-		function Class() {
-			// All construction is actually done in the init method
-			if ( !initializing && this.init )
-				this.init.apply(this, arguments);
-		}
-		 
-		// Populate our constructed prototype object
-		Class.prototype = prototype;
-		 
-		// Enforce the constructor to be what we expect
-		Class.prototype.constructor = Class;
-
-		// And make this class extendable
-		Class.extend = arguments.callee;
-		 
-		return Class;
-	};
+        // Cho phép lớp này được kế thừa tiếp
+        Class.extend = arguments.callee;
+        
+        // --- SỬA LỖI LOGIC ---
+        // Đăng ký class vào reflection *SAU KHI* đã tạo xong
+        // (Đây là logic mà các file như main.js sẽ tự động gọi)
+        if(ref_name) {
+             reflection[ref_name] = Class;
+             // console.log("Registered reflection:", ref_name); // Bỏ comment để debug
+        }
+        
+        return Class;
+    };
 })();
+

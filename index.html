@@ -2,20 +2,26 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <!-- Meta viewport quan trọng cho responsive -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escape The Scam</title>
+    <!-- Link tới file CSS -->
     <link href="Content/style.css" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="Content/favicon.png"> <!-- Đường dẫn favicon -->
+    <!-- Favicon (đặt file favicon.png trong thư mục Content) -->
+    <link rel="icon" type="image/png" href="Content/favicon.png"> 
     <style>
         /* Chống lỗi mờ và lỗi thao tác trên mobile */
         body {
-            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; 
-            user-select: none; touch-action: manipulation;
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+/Edge */
+            user-select: none; /* Standard */
+            touch-action: manipulation; /* Giảm độ trễ click trên mobile */
         }
          #game {
-              image-rendering: -moz-crisp-edges;
-              image-rendering: -webkit-crisp-edges;
-              image-rendering: pixelated;
+              image-rendering: -moz-crisp-edges; /* Firefox */
+              image-rendering: -webkit-crisp-edges; /* Webkit (Chrome, Safari) */
+              image-rendering: pixelated; /* Standard */
               image-rendering: crisp-edges;
          }
     </style>
@@ -41,7 +47,8 @@
     <div id="login-screen">
         <div id="login-container">
             <div id="login-info" class="login-column">
-                <img id="ueh-logo" src="Content/logo/KQM.png" alt="Logo" onerror="this.style.display='none'">
+                <!-- Đường dẫn logo (Bạn PHẢI đặt logo vào Content/logo/KQM.png) -->
+                <img id="ueh-logo" src="Content/logo/KQM.png" alt="Logo" onerror="this.src='https://placehold.co/150x50/0a0a0a/0f0?text=Logo+Error'">
                 <h3>Luật Chơi "Escape The Scam"</h3>
                 <ul id="game-rules">
                     <li>Dùng ◀ ▶ / phím mũi tên để di chuyển.</li>
@@ -64,10 +71,12 @@
     <!-- PHẦN 2: GAME (ẨN BAN ĐẦU) -->
     <div id="game" class="hidden">
         <div id="world"></div>
+        <!-- Giao diện thông số game -->
         <div id="coinNumber" class="gauge">0</div>
         <div id="coin" class="gaugeSprite"></div>
         <div id="liveNumber" class="gauge">0</div>
         <div id="live" class="gaugeSprite"></div>
+        <!-- Giao diện thông tin người chơi -->
         <div id="playerName" class="gauge gauge-text"></div>
         <div id="playerMSSV" class="gauge gauge-text"></div>
     </div>
@@ -84,6 +93,7 @@
     </div>
 
     <!-- AUDIO (Thay thế iframe) -->
+    <!-- Bạn PHẢI đặt file nhạc vào Content/audio/background-music.mp3 -->
     <audio id="game-music" loop>
          <source src="Content/audio/background-music.mp3" type="audio/mpeg"> 
          Trình duyệt của bạn không hỗ trợ âm thanh.
@@ -143,29 +153,11 @@
         const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
         // --- Hàm khởi tạo Game (QUAN TRỌNG) ---
-        function initGame() {
-            console.log("Initializing Game...");
-            if (window.level && window.level.loop) {
-                 window.level.pause();
-                 console.log("Paused existing game loop.");
-            }
-            // Tạo đối tượng Level và gán vào biến toàn cục 'level'
-            window.level = new Level('world'); 
-            if (typeof definedLevels !== 'undefined' && definedLevels.length > 0) {
-                 level.load(definedLevels[0]); // Tải màn chơi đầu tiên
-                 level.start(); // Bắt đầu game loop
-                 keys.bind(); // Kích hoạt input
-                 console.log("Game initialized and started level 0.");
-
-                 // Cập nhật tham chiếu sau khi game khởi tạo
-                 currentLevelRef = level; 
-                 currentMarioRef = level.figures.find(fig => fig instanceof Mario);
-                 if (!currentMarioRef) { console.error("Mario instance not found after init!"); }
-
-            } else {
-                 console.error("definedLevels is not defined or empty! Cannot load level.");
-                 alert("Lỗi: Không thể tải dữ liệu màn chơi!");
-            }
+        // (Hàm này được định nghĩa trong main.js, chúng ta chỉ gọi nó)
+        if (typeof initGame !== 'function') {
+             console.error("Lỗi nghiêm trọng: hàm initGame() không được định nghĩa trong main.js!");
+             alert("Lỗi tải game!");
+             return;
         }
 
         // --- Login Handler ---
@@ -187,7 +179,14 @@
                  gameDiv.style.opacity = '1'; 
                  
                  // Gọi hàm khởi tạo game CHỈ KHI ĐĂNG NHẬP THÀNH CÔNG
-                 initGame(); 
+                 initGame(); // Hàm này nằm trong main.js
+                 
+                 // Gán tham chiếu sau khi game khởi tạo
+                 currentLevelRef = window.level; // Lấy level từ biến toàn cục
+                 if (currentLevelRef) {
+                     currentMarioRef = currentLevelRef.figures.find(fig => fig instanceof Mario);
+                 }
+                 if (!currentMarioRef) { console.error("Mario instance not found after init!"); }
                  
                  // Phát nhạc nền
                  gameMusic.play().catch(e => console.warn("Audio play failed:", e)); 
@@ -196,7 +195,7 @@
                      controls.classList.remove('hidden'); 
                  }
                  
-                 // Scale game (hàm này phải ở trong main.js)
+                 // Scale game (hàm này cũng phải ở trong main.js)
                  if (typeof scaleGame === 'function') {
                      scaleGame(); 
                      setTimeout(scaleGame, 50); 
@@ -259,11 +258,8 @@
             } else {
                 quizOptionBtns[currentCorrectAnswerIndex].classList.add('correct'); 
                 if (currentMarioRef && !currentMarioRef.dead) {
-                     currentMarioRef.setLifes(currentMarioRef.lifes - 1); 
-                     if(currentLevelRef) currentLevelRef.playSound('hurt'); 
-                     if (currentMarioRef.lifes < 0) {
-                          setTimeout(handleGameOver, 500); return; 
-                     }
+                     currentMarioRef.hurt(null); // Gọi hàm hurt() của Mario để trừ mạng
+                     if(currentMarioRef.lifes < 0) { return; } // Nếu hết mạng, hàm hurt sẽ gọi die và reload (sẽ kích hoạt game over)
                 }
                  setTimeout(() => { // Cho thử lại nếu sai
                      quizExplanation.classList.add('hidden'); 
@@ -271,7 +267,7 @@
                           btn.disabled = false;
                           btn.className = 'quiz-option-btn'; 
                      }
-                 }, 1500); 
+                 }, 2000); // Tăng thời gian chờ xem giải thích
             }
         }
 
@@ -279,7 +275,7 @@
             quizOverlay.classList.add('hidden');
             if (currentLevelRef) {
                 keys.bind(); 
-                if (currentMarioRef && currentMarioRef.lifes >= 0 && !currentLevelRef.loop) { 
+                if (currentMarioRef && !currentMarioRef.dead && !currentLevelRef.loop) { 
                      currentLevelRef.start(); 
                 }
             }
@@ -310,6 +306,7 @@
         // --- Game Over ---
         window.handleGameOver = function() { 
             console.log("GAME OVER triggered!");
+            // Lấy level từ biến toàn cục
             if (!currentLevelRef && window.level) { currentLevelRef = window.level; } 
             if (currentLevelRef && currentLevelRef.loop) {
                  currentLevelRef.pause();
@@ -321,6 +318,7 @@
             controls.classList.add('hidden'); 
             
              setTimeout(() => { 
+                // TODO: Thay alert bằng màn hình Game Over đẹp
                 alert("GAME OVER! Bạn đã hết mạng. Nhấn OK để chơi lại.");
                  window.location.reload(); 
             }, 100); 
